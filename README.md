@@ -4,14 +4,22 @@ A Playwright + TypeScript automation project targeting [Practice Software Testin
 
 ## Current scope and status
 
-Four independent Authentication UI scenarios are implemented and passing locally in Chromium:
+Seven independent UI scenarios are implemented. The latest local Chromium execution passed all 7 tests with 0 failures.
+
+Authentication:
 
 - Successful login: redirects to `/account` and displays `My account`.
 - Rejected login with an incorrect password: displays `Invalid email or password`.
 - Logout: signs out through the user dropdown and displays `Sign in`.
 - Unauthenticated account access: opening `/account` redirects to login.
 
-The tests use a `LoginPage` Page Object for interactions and keep assertions in the test file. Chromium is the only enabled browser project.
+Product Discovery:
+
+- Search with matching results.
+- Search with no results.
+- Open a product from search results and validate its name and visible Add to cart button.
+
+The tests use `LoginPage`, `CatalogPage`, and `ProductDetailsPage` Page Objects for interactions and locators, with assertions in the test files. Chromium is the only enabled browser project.
 
 ## Tech stack
 
@@ -25,8 +33,11 @@ The tests use a `LoginPage` Page Object for interactions and keep assertions in 
 ```text
 pages/
   LoginPage.ts          # Login and logout locators/actions
+  CatalogPage.ts        # Catalog search and product navigation
+  ProductDetailsPage.ts # Product detail locators
 tests/
   login.spec.ts         # Four Authentication UI tests
+  product-discovery.spec.ts # Three Product Discovery UI tests
 playwright.config.ts   # Browser, base URL, reporting and environment loading
 package.json           # Project dependencies
 package-lock.json      # Locked dependency versions
@@ -71,10 +82,24 @@ dotenv loads `.env` without overriding externally supplied environment variables
 
 The public practice environment has been observed to remove accounts over time. If valid login starts failing, confirm the account still exists before changing the tests.
 
-## Run Authentication tests
+## Run tests
+
+Run the full Chromium suite:
+
+```sh
+npx playwright test --project=chromium
+```
+
+Run Authentication only:
 
 ```sh
 npx playwright test tests/login.spec.ts --project=chromium
+```
+
+Run Product Discovery only:
+
+```sh
+npx playwright test tests/product-discovery.spec.ts --project=chromium
 ```
 
 If PowerShell blocks `npx.ps1`, use:
@@ -104,7 +129,6 @@ The report provides test outcomes, timings and failure details. Traces are confi
 
 ## Planned evolution — not implemented
 
-- Product discovery coverage
 - Cart coverage
 - Checkout coverage
 - API automation
