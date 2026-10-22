@@ -4,7 +4,7 @@ A Playwright + TypeScript automation project targeting [Practice Software Testin
 
 ## Current scope and status
 
-Seven independent UI scenarios are implemented. The latest local Chromium execution passed all 7 tests with 0 failures.
+Seven independent UI scenarios are implemented. The latest Release 1 Chromium execution passed all 7 tests with 0 failures (13.9 seconds), after the human reviewer reported unlocking the account. See [execution history and investigation](docs/release-01-validation.md) for earlier failures. No test behavior was changed to obtain a green result.
 
 Authentication:
 
@@ -20,6 +20,17 @@ Product Discovery:
 - Open a product from search results and validate its name and visible Add to cart button.
 
 The tests use `LoginPage`, `CatalogPage`, and `ProductDetailsPage` Page Objects for interactions and locators, with assertions in the test files. Chromium is the only enabled browser project.
+
+## Release 1 traceable baseline
+
+- [Requirements and evidence](docs/requirements.md): approval status is separate from evidence; existing tests do not establish official intent.
+- [Seven-test catalogue and mapping](docs/test-catalogue.md): implemented assertions, prerequisites and coverage gaps.
+- [ADR-001: preserve current architecture](docs/adr-001-preserve-baseline.md).
+- [Release 1 validation evidence](docs/release-01-validation.md).
+
+Release 1 changes documentation only. Authentication approval follows leadership review; logout, protected-route intent and Product Discovery decisions remain pending. Account-locking requirements are approved with implementation deferred. Repeated incorrect-password runs may lock shared accounts; no separate negative-test account is required in this release.
+
+The SDTE prepares the branch, local evidence and PR. Álvaro is the human merge gate. CI pipeline implementation is deferred; CI-oriented settings in Playwright configuration do not constitute a pipeline.
 
 ## Tech stack
 
