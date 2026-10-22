@@ -30,7 +30,7 @@ The tests use `LoginPage`, `CatalogPage`, and `ProductDetailsPage` Page Objects 
 
 Release 1 changes documentation only. Authentication approval follows leadership review; logout, protected-route intent and Product Discovery decisions remain pending. Account-locking requirements are approved with implementation deferred. Repeated incorrect-password runs may lock shared accounts; no separate negative-test account is required in this release.
 
-The SDTE prepares the branch, local evidence and PR. Álvaro is the human merge gate. CI pipeline implementation is deferred; CI-oriented settings in Playwright configuration do not constitute a pipeline.
+The SDTE prepares the branch, local evidence and PR. Álvaro is the human merge gate. Release 2 introduces the [GitHub Actions baseline](docs/release-02-summary.md); Jenkins remains deferred. Every release must commit its complete Release Package under `docs/`; terminal output alone is not a delivery record.
 
 ## Tech stack
 
@@ -121,6 +121,22 @@ npx.cmd playwright test tests/login.spec.ts --project=chromium
 
 The same `npx.cmd` alternative can be used for browser installation and report viewing on Windows.
 
+## Release 2 CI
+
+The GitHub Actions workflow runs on pull requests targeting `main`, pushes to `main`, and manual dispatch. It uses Ubuntu, Node 22, `npm ci`, and `npx playwright install --with-deps chromium`.
+
+Reproduce the CI test command locally:
+
+```sh
+npm run test:ci
+```
+
+This runs T-AUTH-001, T-AUTH-003, T-AUTH-004 and all three Product Discovery tests with one worker, zero retries and focused tests forbidden. T-AUTH-002 has the native `@shared-state-risk` tag and is temporarily excluded because incorrect-password attempts can lock the shared backend account. Its implementation and assertions remain intact; the normal full local command above still runs all seven. CI inclusion requires safe account/test-data isolation and a known reset/unlock lifecycle. Product Discovery requirement approval remains pending.
+
+Before expecting credential-dependent CI success, Álvaro must configure repository **Settings > Secrets and variables > Actions > New repository secret** with `TEST_USER_EMAIL` and `TEST_USER_PASSWORD` for an enabled, unlocked test account. The GitHub connector cannot configure or verify these secrets. Never place their values in Git or documentation. Fork PRs do not receive repository secrets and credential-dependent tests will fail explicitly.
+
+Download `playwright-report` from the workflow run's Artifacts section and open the extracted report using `npx playwright show-report <extracted-directory>`. Upload runs after test failure as long as the job is not cancelled; no report can be uploaded if setup fails before one is generated. Retention is 14 days. Test failures keep the job failed. See the [persistent Release Package](docs/release-02-summary.md) for evidence, risks and reviewer guidance.
+
 ## Reporting
 
 The configured HTML reporter writes results to `playwright-report/`. Open the latest report with:
@@ -129,7 +145,7 @@ The configured HTML reporter writes results to `playwright-report/`. Open the la
 npx playwright show-report
 ```
 
-The report provides test outcomes, timings and failure details. Traces are configured for the first retry. Local runs have no retries by default, so local failures do not automatically produce traces; CI runs are configured with two retries.
+The report provides test outcomes, timings and failure details. Traces are configured for the first retry. Local runs have no retries by default, so local failures do not automatically produce traces; the Release 2 CI command explicitly overrides the legacy CI configuration to use zero retries, so it does not produce first-retry traces.
 
 ## Security and test data
 

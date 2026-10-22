@@ -29,7 +29,7 @@ test('registered user can login successfully', async ({ page }) => {
 
 });
 
-test('customer cannot sign in with an incorrect password', async ({ page }) => {
+test('customer cannot sign in with an incorrect password', { tag: '@shared-state-risk' }, async ({ page }) => {
   if (!TEST_USER_EMAIL?.trim()) {
     throw new Error('Missing or blank required environment variable: TEST_USER_EMAIL');
   }

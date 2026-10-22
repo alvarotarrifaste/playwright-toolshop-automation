@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test:ci": "playwright test --project=chromium --grep-invert @shared-state-risk --retries=0 --workers=1 --forbid-only"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
