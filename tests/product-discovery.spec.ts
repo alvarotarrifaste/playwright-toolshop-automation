@@ -36,5 +36,4 @@ test('visitor opens a product from search results and views its details', async 
   await expect(page).toHaveURL(/\/product\/.+/);
   await expect(productDetailsPage.productName).toHaveText('Combination Pliers');
   await expect(productDetailsPage.addToCartButton).toBeVisible();
-  throw new Error('Release 4 diagnostic validation: intentional first-attempt failure (temporary)');
 });

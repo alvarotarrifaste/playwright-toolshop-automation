@@ -29,7 +29,13 @@ Initial inspection confirmed current workflow, config, package, lifecycle contra
 
 ## 5. Controlled-Failure Evidence
 
-Pending hosted execution. Temporarily append a deliberate throw after the original assertions of the final anonymous Product Discovery test. All seven existing scenarios still execute; expected outcome is six passes and one intentional first-attempt failure. The original product assertions remain intact, and the failure is independent of product behavior. No new test, bypass, retries or public SUT dependency. Restore the test byte-for-byte before final green validation and delivery. Temporary validation commit/push is needed for hosted execution; manual dispatch targets the release branch using the workflow already registered on main. No temporary trigger or validation input is added to the delivered workflow.
+Verified [hosted run 39857800120](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/39857800120), [job 120100444282](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/39857800120/job/120100444282), manual dispatch, attempt 1, commit 1d2e19a6692c0912a34465cd2920790d9efb2d17. Ran 2026-10-22 21:30–21:31 UTC. Expected job conclusion: **failure**, not hidden or converted to success.
+
+Temporary validation code appended `throw new Error('Release 4 diagnostic validation: intentional first-attempt failure (temporary)');` at line 39 of the final existing anonymous Product Discovery scenario, after all its original assertions. All seven scenarios executed: **6 passed, 1 failed (7.9s)**, one worker. Only `visitor opens a product from search results and views its details` failed, solely with that deliberate error. Downloaded report/detail JSON confirms exactly one result per scenario, retry=0 for all seven, no skipped or flaky tests. The failed first attempt emitted screenshot, error context and trace attachments. No original assertion was removed or weakened.
+
+Provisioning/SHA verification, pinned ARM64 gateway/QEMU check, local APP_ENV, scheduler exclusion, bounded readiness and reset/seed all passed. The test step failed with nonzero exit; **teardown, HTML upload and raw diagnostics upload all succeeded afterward**. Logs at 21:31:53 confirm controlled containers/network/volumes removed and all empty-list cleanup checks passed. This also exercises the Release 3 failure-path teardown condition on an actual test failure.
+
+The temporary throw is restored locally byte-for-byte against main before the green run. Manual dispatch uses the workflow already on main; no temporary trigger/input was added. Temporary validation commit/push was necessary to execute this hosted path. The validation commit remains in history for reproducibility, but the throw is absent from final branch content/diff and is not part of the delivered tests.
 
 ## 6. Green-Path and Final 7/7 Evidence
 
@@ -37,7 +43,30 @@ Pending hosted run after restoring the temporary failure. Require 7/7, zero retr
 
 ## 7. Exact Artifacts and CI Evidence
 
-Pending actual run IDs, artifact IDs, contents and checksums. Require downloaded failure trace and screenshot, HTML attachment links, first-attempt metadata and successful failure-path teardown/upload. A local run alone is insufficient evidence for GitHub Actions artifact behavior.
+Both failure artifacts were downloaded and inspected under ignored .sut/; checksums match GitHub's artifact digests. Created on 2026-10-22, retained 14 days until 2026-11-05; unexpired when verified.
+
+| Failure artifact | ID / ZIP bytes | SHA256 |
+| --- | --- | --- |
+| [playwright-report](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/39857800120/artifacts/12461220614) | 12461220614 / 4,063,524 | af3dea81c5bb94465cefdaa82f22c5c70a550491bb27213e6b30855727261683 |
+| [playwright-test-results](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/39857800120/artifacts/12461031179) | 12461031179 / 3,438,271 | cb38225061286d65d39eaa98c69d47ba47a3b5a13fa74b0b91b56d4132fe5ab9 |
+
+Raw diagnostics contain exactly these three files under `product-discovery-visitor--1d207-sults-and-views-its-details-chromium/`:
+
+- `trace.zip`
+- `test-failed-1.png`
+- `error-context.md`
+
+HTML artifact contains index.html, the native trace-viewer static assets and these linked attachments:
+
+- `data/4241d9dd9fe418fc5feb8390e73e73d95228a821.zip` (trace)
+- `data/109d0fb89afa2e73ab5e1fa075347e8441332051.png` (screenshot)
+- `data/2711b08d4767c0b9207c3c3719d46bcbc26a422f.md` (error context)
+
+Parsed the embedded native report payload: total=7, expected=6, unexpected=1, flaky=0, skipped=0, actualWorkers=1; every result has retry=0. Attachment paths exist in the downloaded report. Trace and screenshot bytes are identical between report attachments and raw diagnostics. The PNG is valid 1280×720 and was visually inspected: Combination Pliers product detail page is visible at failure. The trace ZIP parses successfully and contains test/source/stack data, DOM snapshots, network resources and trace screencast frames: 38 before/38 after action events, 19 frame-snapshot events, 83 resource-snapshot events and one error. These are trace-native frame captures, not a separate video recording. No .webm or .mp4 was emitted.
+
+Verification commands: repository API GET run/jobs/artifacts and job logs; GET each artifact ZIP; `python .sut/inspect-r4.py failure .sut/release04-failure-report.zip .sut/release04-failure-results.zip` validated hashes, native report/trace JSON, result counts/retry indices, attachment links and exact bytes. The first inspection expected the older script payload container; adapting the ignored verifier to also accept Playwright's template container resolved that tooling mismatch without changing application/test configuration. No raw account values were printed. Green artifact evidence pending.
+
+Observed hosted platform: Ubuntu 24.04.5 LTS AMD64, runner image 20261012.334.1, Node 22.23.3, Docker 28.0.4. The exact Release 2 SHA/digests and Release 3 QEMU mechanism remain unchanged; gateway execution and controlled reset were successful before the deliberate test failure.
 
 ## 8. How to Inspect Evidence
 
