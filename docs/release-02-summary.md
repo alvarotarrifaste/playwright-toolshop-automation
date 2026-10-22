@@ -86,7 +86,7 @@ Local validation on 2026-10-22, Windows PowerShell, Node v22.21.0 / npm 10.9.4 /
 
 Shell environment variables were set using PowerShell syntax; command names used `.cmd` as needed. Values from local ignored `.env` were never printed. No full seven-test execution was performed because intentionally repeating T-AUTH-002 would reintroduce the known account-state risk. Collection proves local executability, not a fresh pass of that scenario. Local Windows evidence does not prove Ubuntu system-dependency installation or GitHub artifact availability.
 
-PR CI evidence is recorded in the Git / PR information below at handoff. Successful credential-dependent CI remains conditional on manually configured secrets and healthy shared account state. A green run does not establish requirement approval.
+PR CI observation on 2026-10-22: [Playwright Tests run 1](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/39806960316) on implementation commit `7e8978277f27e29eec06832fa0f076fb199a809a` was **in progress** at evidence capture. Checkout, Node setup and `npm ci` succeeded; Chromium/system-dependency installation was in progress. Test execution and artifact upload were pending, so neither CI test success nor artifact availability is claimed. This documentation-only handoff update can trigger a subsequent PR run; inspect the latest check in PR #3 before approval. Successful credential-dependent CI remains conditional on manually configured secrets and healthy shared account state. A green run does not establish requirement approval.
 
 ## 8. Known Risks / Gaps
 
@@ -103,8 +103,10 @@ PR CI evidence is recorded in the Git / PR information below at handoff. Success
 - Repository: `alvarotarrifaste/playwright-toolshop-automation`.
 - Base: `main`, synchronized at `4f8dbb1`.
 - Branch: `release/02-github-actions-baseline`.
-- Implementation commit: `ci: add GitHub Actions baseline` (exact SHA recorded at handoff).
-- PR: targeting `main`, title `ci: add Release 2 GitHub Actions baseline`; URL and observed checks recorded at handoff.
+- Implementation commit: [`7e8978277f27e29eec06832fa0f076fb199a809a`](https://github.com/alvarotarrifaste/playwright-toolshop-automation/commit/7e8978277f27e29eec06832fa0f076fb199a809a), `ci: add GitHub Actions baseline`. A follow-up documentation commit records PR/check evidence; its identity is available in this file's Git history.
+- PR: [#3 — ci: add Release 2 GitHub Actions baseline](https://github.com/alvarotarrifaste/playwright-toolshop-automation/pull/3), targeting `main`; confirmed open, non-draft and unmerged through GitHub MCP.
+- Creation transport: GitHub MCP returned `403 Resource not accessible by integration`. Browser automation could not initialize and GitHub CLI was unavailable. The authorized PR was created through GitHub REST using existing Git credential-manager authentication; no credential values were printed or persisted. No repository secret configuration was attempted.
+- CI/check observation: first PR run in progress, with checkout/Node/npm installation successful and Chromium installation underway; test and artifact results pending at evidence capture. Follow the run link in Validation Evidence and the latest PR check before approval.
 - PR must remain **OPEN**. No merge or auto-merge is authorized.
 
 ## 10. Reviewer Guide
