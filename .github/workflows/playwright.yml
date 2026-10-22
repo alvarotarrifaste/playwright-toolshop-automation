@@ -1,0 +1,89 @@
+name: Controlled Toolshop Chromium
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  chromium:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      CI: 'true'
+      PLAYWRIGHT_HTML_OPEN: never
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Install dependencies
+        id: dependencies
+        run: npm ci
+      - name: Install Chromium and system dependencies
+        run: npx playwright install --with-deps chromium
+      - name: Verify Docker and Compose
+        run: |
+          test "$(uname -m)" = x86_64
+          node --version
+          docker version
+          docker compose version
+          test "$(docker info --format '{{.OSType}}')" = linux
+      - name: Enable ARM64 gateway emulation
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4
+        with:
+          platforms: arm64
+          image: tonistiigi/binfmt@sha256:400a4873b838d1b89194d982c45e5fb3cda4593fbfd7e08a02e76b03b21166f0
+          cache-image: false
+      - name: Provision pinned Toolshop
+        run: npm run sut:provision
+      - name: Start controlled Toolshop
+        run: npm run sut:up
+      - name: Verify bounded API and UI readiness
+        run: npm run sut:ready
+      - name: Verify gateway architecture and scheduler exclusion
+        run: |
+          gateway=$(node -p "require('./environment/toolshop.lock.json').images.web")
+          test "$(docker image inspect "$gateway" --format '{{.Os}}/{{.Architecture}}')" = linux/arm64
+          test "$(docker compose -p toolshop-controlled -f .sut/compose.json exec -T web uname -m)" = aarch64
+          echo 'Pinned ARM64 gateway executes on the AMD64 runner.'
+          docker compose -p toolshop-controlled -f .sut/compose.json ps
+          docker compose -p toolshop-controlled -f .sut/compose.json exec -T laravel-api php artisan env
+          schedule=$(docker compose -p toolshop-controlled -f .sut/compose.json exec -T laravel-api php artisan schedule:list)
+          printf '%s\n' "$schedule"
+          if [[ "$schedule" == *migrate:fresh* ]]; then
+            echo 'Unexpected destructive scheduler registration.' >&2
+            exit 1
+          fi
+      - name: Reset seed and run all seven Chromium scenarios
+        id: tests
+        timeout-minutes: 10
+        # Release 2 helper resets/seeds, injects separate accounts, and enforces
+        # --project=chromium --workers=1 --retries=0 --forbid-only.
+        run: npm run test:controlled
+      - name: Tear down controlled Toolshop
+        if: ${{ always() && steps.dependencies.outcome == 'success' }}
+        run: |
+          npm run sut:down
+          test -z "$(docker ps -aq --filter label=com.docker.compose.project=toolshop-controlled)"
+          test -z "$(docker network ls -q --filter label=com.docker.compose.project=toolshop-controlled)"
+          test -z "$(docker volume ls -q --filter label=com.docker.compose.project=toolshop-controlled)"
+          echo 'Controlled containers, networks and volumes absent.'
+      - name: Upload Playwright HTML report
+        if: ${{ always() && steps.tests.outcome != 'skipped' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+          if-no-files-found: error
