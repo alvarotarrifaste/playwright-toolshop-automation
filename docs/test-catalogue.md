@@ -1,6 +1,6 @@
 # Existing automation and traceability
 
-Seven implemented UI tests are mapped below. IDs are documentation identifiers; test names, source, assertions and execution selection are unchanged. Requirement status comes from [the requirements catalogue](requirements.md), independently of execution outcome in [validation evidence](release-01-validation.md).
+Seven implemented UI tests are mapped below. IDs are documentation identifiers; test names and functional assertions are preserved. Release 2 changes environment/data injection: a controlled target, reset before execution and a separate negative customer. Requirement status comes from [the requirements catalogue](requirements.md), independently of execution outcome in [Release 1 validation](release-01-validation.md) and the [Release 2 package](release-02-summary.md).
 
 Priority and smoke/regression assignments in Phase 1 were proposals. **Not yet agreed**: Release 1 assigns no operational suite tags or approved priority labels. All seven run through the existing Chromium command.
 
@@ -11,7 +11,7 @@ Source for all four: [tests/login.spec.ts](../tests/login.spec.ts). Functional a
 | Test ID | Requirement and status | Exact existing scenario | Current assertions | Known gap / data prerequisite |
 | --- | --- | --- | --- | --- |
 | T-AUTH-001 | REQ-AUTH-001: Approved | `registered user can login successfully` | `/account` URL and visible `My account` heading | Enabled customer; `TEST_USER_EMAIL` and `TEST_USER_PASSWORD`. D5 User Login AC2. Does not cover admin, disabled accounts or TOTP. |
-| T-AUTH-002 | REQ-AUTH-002: Approved; minor documentation condition | `customer cannot sign in with an incorrect password` | Visible error with exact `Invalid email or password` text | Configured customer email and deliberate incorrect password. D5 User Login AC3. Does not assert absence of session; repeated failures can lock shared account. No separate negative account required now. |
+| T-AUTH-002 | REQ-AUTH-002: Approved; minor documentation condition | `customer cannot sign in with an incorrect password` | Visible error with exact `Invalid email or password` text | Release 2 uses `TEST_NEGATIVE_USER_EMAIL`, a different seeded customer from positive login/logout; controlled-suite execution resets/seeds first. D5 User Login AC3. Does not assert absence of session. Browser isolation alone does not reset failure counters; direct repeated execution can still lock the negative customer. |
 | T-AUTH-003 | REQ-AUTH-003: Requires confirmation | `signed-in customer logs out` | Successful account redirect, then visible `Sign in` link after logout | Valid credentials; test performs its own UI login. Official intent pending; no token/session invalidation or post-logout route check. |
 | T-AUTH-004 | REQ-AUTH-004: Requires confirmation | `unauthenticated visitor cannot access /account` | `/auth/login` URL and visible login button | Fresh unauthenticated context; no credentials needed. Official intent pending; no backend authorization proof. |
 

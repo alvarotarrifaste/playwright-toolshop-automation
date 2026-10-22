@@ -3,7 +3,14 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "sut:provision": "node scripts/toolshop.cjs provision",
+    "sut:up": "node scripts/toolshop.cjs up",
+    "sut:ready": "node scripts/toolshop.cjs ready",
+    "sut:reset": "node scripts/toolshop.cjs reset",
+    "sut:down": "node scripts/toolshop.cjs down",
+    "test:controlled": "node scripts/toolshop.cjs test"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

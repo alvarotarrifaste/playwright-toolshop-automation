@@ -1,0 +1,21 @@
+{
+  "repository": "https://github.com/testsmith-io/practice-software-testing.git",
+  "tag": "2.5",
+  "commit": "9e7736c3841ec2bbb9a6822c9e6602353b7b9a65",
+  "platform": "linux/amd64",
+  "servicePlatforms": {
+    "web": "linux/arm64"
+  },
+  "imageSources": {
+    "laravel-api": "testsmith/practice-software-testing-sprint5-api:2.5",
+    "angular-ui": "testsmith/practice-software-testing-sprint5-ui:2.5",
+    "web": "Official production Compose web image; upstream publishes only latest, resolved once to the digest below",
+    "mariadb": "yobasystems/alpine-mariadb:10.6.11"
+  },
+  "images": {
+    "laravel-api": "testsmith/practice-software-testing-sprint5-api@sha256:881cb7ecd76477994728648c0c16f6e9d2beed0f0217734843a32a7bb92553f0",
+    "angular-ui": "testsmith/practice-software-testing-sprint5-ui@sha256:f907d8daae32dc90ba900e964928d00bf0aabfab7067eaeeaa49f5a0f70c52e6",
+    "web": "testsmith/practice-software-testing-web@sha256:950bafdc86501002c381e35d9b70e298fe211f4ab1fbfda334b67f03dffa048d",
+    "mariadb": "yobasystems/alpine-mariadb@sha256:8bb25ca2d68c81118fcf745959560de2f316a178abf9decc8bb5b6f86c929084"
+  }
+}
