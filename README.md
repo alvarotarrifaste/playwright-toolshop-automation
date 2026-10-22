@@ -123,7 +123,15 @@ On startup/readiness failure, the command exits nonzero and prints service statu
 
 See [ADR-002](docs/adr-002-controlled-toolshop.md) and the [persistent Release Package](docs/release-02-summary.md) for rationale, evidence and remaining prerequisites.
 
-## Run tests
+## GitHub Actions baseline
+
+The [controlled Chromium workflow](.github/workflows/playwright.yml) runs on pull requests targeting `main`, pushes to `main`, and manual dispatch (after the workflow exists on `main`). It uses Ubuntu 24.04 AMD64, Node 22, `npm ci`, and `npx playwright install --with-deps chromium`. The pinned ARM64 gateway runs through Docker's QEMU setup; API/UI/database run natively on AMD64. The SUT version and image digests are unchanged from Release 2.
+
+CI runs `sut:provision`, `sut:up`, `sut:ready` and `test:controlled`. The last command resets/seeds and runs all seven scenarios, including incorrect-password authentication, with one worker, zero retries and `--forbid-only`. It generates/injects the ignored controlled accounts; no public-host account secrets are required. Teardown runs with `always()` after dependency installation and checks that project containers, networks and volumes are absent.
+
+Download `playwright-report` from the workflow run's Artifacts section, extract it and open with `npx playwright show-report <directory>`. HTML reports are retained for 14 days and uploaded when test execution was attempted, including test failure. Setup failures before tests may generate no report. No retry traces are produced under this zero-retry contract. See the [Release 3 Package](docs/release-03-summary.md) for actual hosted evidence and limitations.
+
+## Run tests locally
 
 Run the full Chromium suite:
 
