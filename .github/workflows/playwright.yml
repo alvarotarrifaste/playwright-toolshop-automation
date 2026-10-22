@@ -4,8 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    # Temporary bootstrap trigger: remove after pre-PR hosted validation.
-    branches: [main, release/03-github-actions-baseline]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
