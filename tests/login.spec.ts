@@ -3,6 +3,7 @@ import { LoginPage } from '../pages/LoginPage';
 
 const TEST_USER_EMAIL = process.env.TEST_USER_EMAIL;
 const TEST_USER_PASSWORD = process.env.TEST_USER_PASSWORD;
+const TEST_NEGATIVE_USER_EMAIL = process.env.TEST_NEGATIVE_USER_EMAIL;
 
 test('registered user can login successfully', async ({ page }) => {
   if (!TEST_USER_EMAIL?.trim()) {
@@ -30,8 +31,11 @@ test('registered user can login successfully', async ({ page }) => {
 });
 
 test('customer cannot sign in with an incorrect password', async ({ page }) => {
-  if (!TEST_USER_EMAIL?.trim()) {
-    throw new Error('Missing or blank required environment variable: TEST_USER_EMAIL');
+  if (!TEST_NEGATIVE_USER_EMAIL?.trim()) {
+    throw new Error('Missing or blank required environment variable: TEST_NEGATIVE_USER_EMAIL');
+  }
+  if (TEST_NEGATIVE_USER_EMAIL.trim().toLowerCase() === TEST_USER_EMAIL?.trim().toLowerCase()) {
+    throw new Error('Negative authentication requires a different customer account');
   }
 
   const loginPage = new LoginPage(page);
@@ -39,7 +43,7 @@ test('customer cannot sign in with an incorrect password', async ({ page }) => {
   await loginPage.goto();
 
   await loginPage.login(
-    TEST_USER_EMAIL,
+    TEST_NEGATIVE_USER_EMAIL,
     'IncorrectPassword123*'
   );
 

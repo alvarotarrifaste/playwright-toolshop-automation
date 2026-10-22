@@ -30,7 +30,7 @@ The tests use `LoginPage`, `CatalogPage`, and `ProductDetailsPage` Page Objects 
 
 Release 1 changes documentation only. Authentication approval follows leadership review; logout, protected-route intent and Product Discovery decisions remain pending. Account-locking requirements are approved with implementation deferred. Repeated incorrect-password runs may lock shared accounts; no separate negative-test account is required in this release.
 
-The SDTE prepares the branch, local evidence and PR. Álvaro is the human merge gate. CI pipeline implementation is deferred; CI-oriented settings in Playwright configuration do not constitute a pipeline.
+The SDTE prepares the branch, local evidence and PR. Álvaro is the human merge gate. Release 2 introduces a controlled Toolshop environment; GitHub Actions is deferred to Release 3. The earlier CI proposal in PR #3 is unmerged and is not a prerequisite for this branch. Every release must commit its Release Package in `docs/`.
 
 ## Tech stack
 
@@ -62,6 +62,8 @@ Local generated directories include `node_modules/` (dependencies), `playwright-
 
 ## Setup
 
+The controlled environment below is the reference target. The public deployment is for optional manual/exploratory comparison only; a public-host pass is not controlled-environment evidence.
+
 Use Node.js 20 or newer, as required by the current Playwright dependency, with npm available. Run commands from the repository root.
 
 1. Install dependencies:
@@ -76,22 +78,50 @@ Use Node.js 20 or newer, as required by the current Playwright dependency, with 
    npx playwright install chromium
    ```
 
-3. Copy `.env.example` to `.env`. In Windows PowerShell:
+3. For optional direct/manual execution, copy `.env.example` to `.env`. In Windows PowerShell:
 
    ```powershell
    Copy-Item .env.example .env
    ```
 
-4. Create a dedicated customer account in the target application and set its credentials in `.env`:
+4. For direct execution, set `BASE_URL`, positive credentials and a separate negative-test customer in `.env`. Do not reuse public accounts for the controlled run:
 
    ```dotenv
+   BASE_URL=http://localhost:4200
    TEST_USER_EMAIL=
    TEST_USER_PASSWORD=
+   TEST_NEGATIVE_USER_EMAIL=
    ```
 
 dotenv loads `.env` without overriding externally supplied environment variables. Credential-dependent tests reject missing, empty or whitespace-only values with an explicit error; the original password is used unchanged. The unauthenticated-access test does not require credentials.
 
 The public practice environment has been observed to remove accounts over time. If valid login starts failing, confirm the account still exists before changing the tests.
+
+## Controlled environment
+
+Prerequisites: Node.js 22 with npm, Git, and Docker Engine with **Linux containers** and Docker Compose v2 or newer running (Docker Desktop with WSL2 on Windows). Allow the initial image download; ports `4200` and `8091` must be free. API/UI/database use `linux/amd64`; the pinned official gateway is `linux/arm64` and requires ARM64 emulation on AMD64 hosts (validated with Docker Desktop).
+
+Official Toolshop **tag `2.5`**, commit `9e7736c3841ec2bbb9a6822c9e6602353b7b9a65`, is fetched into ignored `.sut/upstream/`. UI/API release images and web/database images are fixed by digest in [the SUT lock](environment/toolshop.lock.json). No application source is committed here.
+
+```sh
+npm ci
+npx playwright install chromium
+npm run sut:provision
+npm run sut:up
+npm run sut:reset
+npm run test:controlled
+npm run sut:down
+```
+
+UI: `http://localhost:4200`. API: `http://localhost:8091`. `sut:up` provisions if necessary and checks bounded API/frontend readiness; `sut:ready` checks again. `sut:reset` destroys and reseeds **this controlled database**, restoring accounts, login counters and catalog, and clears application cache. Do not run resets while using the environment manually.
+
+Provisioning generates ignored `.env.controlled` from the pinned official seeder without printing its values. Required variables are `TEST_USER_EMAIL`, `TEST_USER_PASSWORD`, and `TEST_NEGATIVE_USER_EMAIL`; positive tests use the first seeded customer and the incorrect-password test uses the second. No passwords are embedded in tests or documentation. Existing `.env.controlled` is preserved; external environment variables take precedence.
+
+`test:controlled` resets/seeds before every run, then executes all seven Chromium scenarios against the controlled UI with one worker and zero retries. It does not run a tag-filtered subset. To repeat Authentication only after a restart, use `npm run test:controlled -- tests/login.spec.ts`. Reports remain in ignored `playwright-report/`. `sut:down` removes the controlled containers, network and volumes; it retains images, the external checkout and local credential file for reuse.
+
+On startup/readiness failure, the command exits nonzero and prints service status plus a focused logs command; it does not start tests. If a lifecycle command is forcibly interrupted, confirm no operation is running before removing the empty `.sut/operation.lock` directory. Lifecycle commands serialize access to this one local environment; direct Playwright/manual sessions must not overlap resets.
+
+See [ADR-002](docs/adr-002-controlled-toolshop.md) and the [persistent Release Package](docs/release-02-summary.md) for rationale, evidence and remaining prerequisites.
 
 ## Run tests
 
