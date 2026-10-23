@@ -160,7 +160,15 @@ Each controlled test command completed bounded API/UI/database/catalog readiness
 
 ### 14.6 GitHub Actions evidence
 
-Pending actual hosted run, nine-scenario report verification and cleanup. Use existing workflow_dispatch against this branch without adding temporary workflow triggers or changing job behavior.
+Verified [follow-up run 40017255241](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40017255241), [job 120632407394](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40017255241/job/120632407394), workflow_dispatch attempt 1 on implementation SHA 55056d289970fbd5d71d77d4b4c6db85d43a35d1. Ran 2026-10-23 20:11–20:12 UTC; run/job conclusion **success**. Ubuntu 24.04 AMD64, runner image 20261012.334.1, Node 22.23.3. This is new post-merge evidence, not PR #8's eight-test run.
+
+All setup steps passed, including npm ci and the existing strict `npm run typecheck`. Logs verified Toolshop 2.5 / SHA 9e7736c3841ec2bbb9a6822c9e6602353b7b9a65. API ready at 20:12:25, frontend at 20:12:35; separate readiness passed at 20:12:36. Exact pinned ARM64 gateway and scheduler-exclusion checks passed; APP_ENV=local. Controlled reset/seed/cache clear and seeded catalog readiness completed at 20:12:41. Browser output confirms localhost:4200, `Running 9 tests using 1 worker`, **9 passed (12.8s)**, zero retries.
+
+Teardown passed at 20:12:57: controlled containers/network/volumes removed, all three project-label empty-list assertions passed. HTML upload succeeded; failure-only diagnostics upload skipped on green. The entire workflow, native trace/screenshot settings and artifact behavior are unchanged from merged PR #8. No temporary trigger, failing-test injection, public target or new repository secrets.
+
+Verified [playwright-report artifact 12527974618](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40017255241/artifacts/12527974618): 201,520 ZIP bytes; SHA256 `362ba953d6b4ee8e20c1e3326d2cdad57659f3aaf2948e5e1805d355dfdebf5b`; created 2026-10-23T20:12:58Z, expires 2026-11-06T20:12:57Z (14 days), unexpired at verification. Downloaded ZIP hash matches GitHub. `npx.cmd tsx .sut/inspect-auth-cart-report.ts .sut/authenticated-cart-report.zip` validated native embedded report/detail JSON: total=9, expected=9, unexpected=0, flaky=0, skipped=0, errors=[], actualWorkers=1, exactly one passed result/retry=0 per scenario. All nine exact source titles match the report, including T-CART-001/T-CART-002; no failure attachments. ZIP contains index.html only. Download/extract and use `npx playwright show-report <directory>` to inspect.
+
+Final scope/history review passed again: only the five declared files differ; original seven, anonymous test body, all Page Objects/controlled contracts are unchanged; original PR #8 package content is retained verbatim; no credential values or JS/CJS/MJS project source added. Final evidence-only commit changes this package after the tested implementation; test/runtime content remains identical. This follow-up provides local isolated **1/1**, cart **2/2**, full **9/9** and hosted full **9/9** without weakening any original assertion.
 
 ### 14.7 Risks, review and interview defense
 
@@ -176,4 +184,6 @@ Pending actual hosted run, nine-scenario report verification and cleanup. Use ex
 
 ### 14.8 Current Release 5 closure readiness
 
-IN PROGRESS — POST-MERGE CHANGE REQUEST VALIDATION REQUIRED. Approved refined REQ-CART-001; anonymous path retained and authenticated implementation added. Final closure readiness requires isolated authenticated pass, both cart cases, full 9/9, strict typecheck, green hosted CI/report and clean teardown. Commit/push for hosted evidence, persist results, then create an OPEN PR against main and stop. Do not merge or start Release 6. Delivery SHA is recorded in Git history; the eventual PR is authoritative URL/status. No post-creation documentation commit planned.
+VALIDATED — POST-MERGE RELEASE 5 CHANGE REQUEST COMPLETE; READY FOR HUMAN REVIEW AND CLOSURE REVIEW. REQ-CART-001 is Approved for the refined session-neutral behavior. T-CART-001 remains unchanged, T-CART-002 passes independently, both cart paths pass together, local/hosted full regression is 9/9, strict typecheck passes and report/cleanup evidence is verified. No remaining execution blocker on the validated paths. Narrow product/quantity coverage and the risks above remain explicit.
+
+Implementation SHA: 55056d289970fbd5d71d77d4b4c6db85d43a35d1; final evidence-only delivery SHA is identified by Git history. Ready to commit/push this record and create an OPEN PR against main. Release 5 is closure-ready subject to human follow-up PR review/merge and post-merge confirmation; it is **not marked CLOSED by this execution**. The eventual PR is authoritative URL/status. Stop immediately after PR creation; no merge, Release 6 or post-creation documentation commit.
