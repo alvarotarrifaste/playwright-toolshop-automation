@@ -67,7 +67,7 @@ jobs:
             echo 'Unexpected destructive scheduler registration.' >&2
             exit 1
           fi
-      - name: Reset seed and run all seven Chromium scenarios
+      - name: Reset seed and run all Chromium scenarios
         id: tests
         timeout-minutes: 10
         # Release 2 helper resets/seeds, injects separate accounts, and enforces

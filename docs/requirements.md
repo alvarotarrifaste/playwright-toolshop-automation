@@ -1,6 +1,6 @@
-# Release 1 requirements baseline
+# Functional requirements and evidence
 
-This catalogue records leadership decisions for Release 1. Requirement status and evidence are separate: **existing automation proves what the framework currently validates; it does not automatically establish intended product behavior**. No new functional coverage is introduced.
+This catalogue preserves the Release 1 leadership decisions and adds the focused Release 5 Add to Cart candidate. Requirement status and evidence are separate: **existing automation proves what the framework currently validates; it does not automatically establish intended product behavior**. Release 5 adds one functional scenario; earlier approval statuses remain unchanged.
 
 ## Status and evidence model
 
@@ -16,6 +16,9 @@ Evidence types: **Official/project-owned documentation**, **Application observat
 - **R:** Existing repository evidence in [README](../README.md) and [configuration](../playwright.config.ts).
 - **L:** Explicit Release 1 leadership review decisions supplied by Álvaro and the Automation workspace. These determine approval status; the earlier Phase 1 proposal alone does not approve requirements.
 - **V:** [Release 1 validation](release-01-validation.md). Application observation is limited to the assertions reached and passed in that execution. Failed or unexecuted assertions do not provide current behavior confirmation.
+- **P5:** [Pinned upstream Sprint 5 user stories](https://github.com/testsmith-io/practice-software-testing/blob/9e7736c3841ec2bbb9a6822c9e6602353b7b9a65/docs/user-stories/v5.md), official/project-owned documentation at the controlled SUT SHA. Product Detail AC3 (default quantity 1), AC8 (selected product/quantity added), Checkout – Cart Review AC1 (item/quantity table).
+- **O5:** [Release 5 application observation and execution](release-05-summary.md): controlled seeded Combination Pliers, fresh anonymous context, actual Add to Cart/cart review flow; distinguishes observed behavior from approval.
+- **I5:** [Pinned cart service implementation](https://github.com/testsmith-io/practice-software-testing/blob/9e7736c3841ec2bbb9a6822c9e6602353b7b9a65/sprint5/UI/src/app/_services/cart.service.ts) and [cart UI](https://github.com/testsmith-io/practice-software-testing/blob/9e7736c3841ec2bbb9a6822c9e6602353b7b9a65/sprint5/UI/src/app/checkout/cart/cart.component.html): official source corroboration; session-scoped cart identity and API-backed cart review. Source inspection alone is not execution evidence.
 
 ## Authentication
 
@@ -39,4 +42,14 @@ All three mappings are **Requires confirmation** pending leadership review. Avai
 | REQ-CATALOG-003 | A no-match search displays zero results and no product cards. | Requires confirmation | A; R. Exact no-match wording is not established by the cited D5 search criterion. | T-CATALOG-002 checks the exact `xxx` zero-result message and zero product names. Confirm intended empty-result behavior and wording; query depends on catalog data. |
 | REQ-CATALOG-004 | Selecting a product opens details showing its product information. | Requires confirmation | D5 Product Overview AC2 and Product Detail AC1; A; R. | T-CATALOG-003 checks product URL, name and visible Add to cart button. Image, description, price, category and brand are not checked; visible button does not prove cart functionality. Leadership review remains pending. |
 
-IDs retain the Phase 1 proposal's numbering; omitted catalogue IDs are outside this release. Product names and search data depend on the public deployment. No API contract or backend authorization requirement is established by these UI checks.
+Catalogue IDs retain the Phase 1 proposal's numbering. The controlled seeded catalogue is the reference data source from Release 2 onward; historical public-deployment evidence remains historical. No API contract or backend authorization requirement is established by these UI checks.
+
+## Add to Cart — Release 5
+
+| ID | Focused requirement | Requirement status | Evidence/source classification | Business/risk value | Traceability and boundaries |
+| --- | --- | --- | --- | --- | --- |
+| REQ-CART-001 | A visitor starting with a fresh browser context can open the seeded in-stock, non-rental Combination Pliers from search, add its default quantity of 1, and review a cart containing exactly that product with quantity 1. | Proposed — Release 5 human approval pending | P5: official/project-owned pinned documentation; I5: official source corroboration; O5: actual controlled application observation and execution. | Protect the product-selection-to-cart purchase funnel; detect no-op adds, wrong product, wrong quantity or unexpected extra line items that a toast/badge alone would miss. | T-CART-001 → tests/cart.spec.ts → pages/ProductDetailsPage.ts and pages/CartPage.ts → release-05-summary.md local/CI evidence. UI functional regression; no approved priority or smoke tag inferred. |
+
+Preconditions: controlled Toolshop 2.5/exact SHA/images, successful bounded readiness and automation reset/seed; seeded product has stock 25 and is not a rental/location offer; fresh anonymous Playwright context without inherited cart identity; default English test locale and quantity 1. No login, fixed product/cart ID or prior test execution is required.
+
+Expected result: after adding and opening cart review, URL is /checkout, the product-name collection is exactly [Combination Pliers] and the single quantity input is 1. The cart view fetches server-backed contents; this is the primary observable state assertion. The toast and badge were observed but are not the requirement oracle. Product Detail AC8's success-message clause is not automated here. Prices/totals, manual quantity changes, repeated adds/merging, other products/rentals, out-of-stock, empty-cart wording, payment and cross-session persistence are outside this focused requirement. Implementation/passing execution does not promote the Proposed status to Approved.

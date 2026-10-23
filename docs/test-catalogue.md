@@ -1,8 +1,8 @@
 # Existing automation and traceability
 
-Seven implemented UI tests are mapped below. IDs are documentation identifiers; test names and functional assertions are preserved. Release 2 changes environment/data injection: a controlled target, reset before execution and a separate negative customer. Requirement status comes from [the requirements catalogue](requirements.md), independently of execution outcome in [Release 1 validation](release-01-validation.md) and the [Release 2 package](release-02-summary.md).
+Eight implemented UI tests are mapped below. The original seven names and functional assertions are preserved; Release 5 adds T-CART-001. IDs are documentation identifiers. Release 2 supplies a controlled target, reset before execution and separate authentication customers. Requirement status comes from [the requirements catalogue](requirements.md), independently of historical release results and [Release 5 execution evidence](release-05-summary.md).
 
-Priority and smoke/regression assignments in Phase 1 were proposals. **Not yet agreed**: Release 1 assigns no operational suite tags or approved priority labels. All seven run through the existing Chromium command.
+Priority and smoke/regression assignments in Phase 1 were proposals. **Not yet agreed**: no operational suite tags or approved priority labels are inferred. All eight run through the existing controlled Chromium command. T-CART-001 is classified as functional regression for the Add to Cart happy path; this does not introduce a tag-filtered suite.
 
 ## Authentication
 
@@ -27,4 +27,14 @@ Source for all three: [tests/product-discovery.spec.ts](../tests/product-discove
 
 ## Deferred automation
 
-REQ-AUTH-005 is approved but has **no implemented automated test**. A future locking scenario needs explicit account isolation, verified counter semantics and reset/unlock lifecycle before implementation. It is not an eighth Release 1 test. API checks, additional discovery scenarios and new functional domains remain outside this release.
+REQ-AUTH-005 is approved but has **no implemented automated test**. A future locking scenario needs explicit account isolation, verified counter semantics and reset/unlock lifecycle before implementation. It is not the new eighth test: Release 5's addition is Add to Cart. API checks, additional discovery scenarios and cart operations beyond the focused addition remain deferred.
+
+## Add to Cart — Release 5
+
+Source: [tests/cart.spec.ts](../tests/cart.spec.ts). Layer: UI; classification: **functional regression — Add to Cart happy path**. Implementation: reused CatalogPage; small additions to ProductDetailsPage; CartPage exposes cart navigation/product/quantity locators. All assertions stay in the test. No fixtures, API helpers, data framework, generic components or order dependencies.
+
+| Test ID | Requirement/status and evidence | Exact scenario / implementation | Preconditions | Expected result / assertions | Business/risk value and execution |
+| --- | --- | --- | --- | --- | --- |
+| T-CART-001 | REQ-CART-001: Proposed, approval pending. P5 official pinned stories; I5 official source; O5 controlled observation/execution. | `visitor adds a product to cart and sees the selected product and quantity` in tests/cart.spec.ts | Controlled reset/seed/readiness; fresh anonymous context; search Pliers; seeded in-stock Combination Pliers; default quantity 1. | Search complete; exact detail product/default quantity; Add to Cart; navigate through cart link; /checkout; complete cart product-name collection exactly [Combination Pliers]; quantity=1. | Prevent missing/wrong product/quantity and unexpected extra lines in purchase funnel. Requirement → test → POM → local/hosted results in release-05-summary.md. |
+
+Playwright's per-test context isolates sessionStorage cart identity; no scenario provides state to another. Cart-link auto-wait synchronizes navigation after successful add (link is absent for zero items in this SUT); final assertions inspect the persistent cart contents rather than relying on transient confirmation. Existing seven tests remain unchanged. No new test covers checkout progression, payment, pricing/discounts, removal, quantity updates or empty-cart wording.
