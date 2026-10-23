@@ -129,7 +129,7 @@ The [controlled Chromium workflow](.github/workflows/playwright.yml) runs on pul
 
 CI runs `sut:provision`, `sut:up`, `sut:ready` and `test:controlled`. The last command resets/seeds and runs all seven scenarios, including incorrect-password authentication, with one worker, zero retries and `--forbid-only`. It generates/injects the ignored controlled accounts; no public-host account secrets are required. Teardown runs with `always()` after dependency installation and checks that project containers, networks and volumes are absent.
 
-Download `playwright-report` from the workflow run's Artifacts section, extract it and open with `npx playwright show-report <directory>`. HTML reports are retained for 14 days and uploaded when test execution was attempted, including test failure. Setup failures before tests may generate no report. No retry traces are produced under this zero-retry contract. See the [Release 3 Package](docs/release-03-summary.md) for actual hosted evidence and limitations.
+Download `playwright-report` from the workflow run's Artifacts section, extract it and open with `npx playwright show-report <directory>`. HTML reports are retained for 14 days and uploaded when test execution was attempted, including test failure. Failed test steps also upload `playwright-test-results` with available traces, screenshots and error context. Setup failures before tests may generate no report or diagnostics. See the [Release 3 Package](docs/release-03-summary.md) for the CI baseline and [Release 4 Package](docs/release-04-summary.md) for validated failure evidence.
 
 ## Run tests locally
 
@@ -167,7 +167,9 @@ The configured HTML reporter writes results to `playwright-report/`. Open the la
 npx playwright show-report
 ```
 
-The report provides test outcomes, timings and failure details. Traces are configured for the first retry. Local runs have no retries by default, so local failures do not automatically produce traces; CI runs are configured with two retries.
+The report provides test outcomes, timings and failure details. Playwright records traces with `retain-on-failure` and screenshots with `only-on-failure`, including a failed first attempt. Passing tests discard their trace recordings. Video remains off to avoid adding capture/storage cost alongside trace snapshots and screenshots. Controlled execution continues to enforce one worker, zero retries and `--forbid-only`, overriding the legacy direct-CI retry default in the config.
+
+For a failed CI run, download/extract `playwright-report` and open it with `npx playwright show-report <directory>`; select the failed scenario to inspect its error, screenshot and trace link. The separate `playwright-test-results` artifact preserves original `trace.zip`, `test-failed-1.png` and any native error context under the failed scenario directory. Open a downloaded trace locally with `npx playwright show-trace <path/to/trace.zip>` and open the PNG directly. Keep the entire extracted HTML report together so attachment links resolve. Diagnostics can include DOM, network and test-account data; review before sharing. Retention is 14 days; no video or retry is required.
 
 ## Security and test data
 
