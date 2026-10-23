@@ -30,6 +30,8 @@ jobs:
       - name: Install dependencies
         id: dependencies
         run: npm ci
+      - name: Check TypeScript types
+        run: npm run typecheck
       - name: Install Chromium and system dependencies
         run: npx playwright install --with-deps chromium
       - name: Verify Docker and Compose
