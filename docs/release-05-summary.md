@@ -1,5 +1,7 @@
 # Release 5 — Add to Cart
 
+> Sections 1–13 preserve the original anonymous-only PR #8 delivery and its eight-test evidence. Their Proposed requirement status describes that point in time. PR #8 is now merged. The human-approved refined requirement, added authenticated path and current closure readiness are recorded separately in section 14; T-CART-002 did not exist in the original run.
+
 ## 1. Objective
 
 Add one focused UI regression for adding a product to cart, the first new functional coverage since the seven-test baseline. Preserve all original seven scenarios/assertions, controlled Toolshop, one worker, zero retries, forbid-only, strict TypeScript and Release 4 native failure diagnostics. Base: main 5287faf0a9495a94ed8c4d6969f961d9cfdd13cb (merged TypeScript hotfix PR #7); branch release/05-add-to-cart. No Release 6 work.
@@ -107,3 +109,71 @@ Review pinned requirement sources vs actual observation → focused requirement/
 ## 13. Release Status
 
 VALIDATED — RELEASE 5 DEFINITION OF DONE SATISFIED; FINAL DELIVERY VIA OPEN PR. Evidence-supported REQ-CART-001/T-CART-001, actual cart behavior, local 8/8, isolated 1/1, hosted 8/8, report content and local/hosted cleanup verified. Seven baseline scenarios and all execution/failure-diagnostic contracts are preserved. Requirement remains Proposed for human review; no earlier approval statuses changed. Implementation commit: 1d2b9ef287d1014532609614f15f8d2568757b03. Final evidence-only commit is identified by Git history; PR will be authoritative URL/status. Ready for human review once this evidence is committed/pushed and OPEN PR against main exists. Stop immediately after creation; no merge or Release 6. No post-creation documentation commit planned. No remaining execution blocker; focused scope and infrastructure/diagnostic risks remain as listed.
+
+## 14. Post-merge Release 5 Change Request — Authenticated Cart
+
+### 14.1 Leadership decision and rationale
+
+After PR #8 merged, human leadership approved this refinement: **A supported user session must be able to add an available product to cart and review the correct product and selected quantity in Cart Review.** REQ-CART-001 is now **Approved**. Release 5 must validate both anonymous and authenticated sessions; the original anonymous-only requirement was too narrow. This is a Release 5 follow-up, not Release 6. Other requirement approval statuses are unchanged.
+
+Retain REQ-CART-001 → T-CART-001 anonymous coverage and add REQ-CART-001 → T-CART-002 authenticated coverage. Keep seeded Combination Pliers, stock=25, non-rental/non-location-offer and default quantity 1. The approved functional statement is not limited to anonymity; implemented data coverage remains deliberately focused. No claim is made about other quantities/products, cart ownership/merging or cross-session/device behavior.
+
+### 14.2 Base and application observation
+
+Branch hotfix/release-05-authenticated-cart starts from main 43a305f47dbfacb7948f71adaa0438a28958ea93, the merge of PR #8. The original PR #8 implementation/run/artifact above remain historical and unmodified. Inspected the current login/cart tests and existing four Page Objects, pinned cart/auth source, controlled configuration and diagnostics before implementation.
+
+Local `npm.cmd run sut:up` / `npm.cmd run sut:reset` passed with exact Toolshop 2.5 SHA/images and bounded API/UI/DB/catalog readiness. `npx.cmd tsx .sut/observe-authenticated-cart.ts` (ignored TypeScript observation scaffolding) used a fresh en-US context, existing controlled positive credentials and existing LoginPage UI interactions. /account and My account verified successful login; navigation to discovery preserved the user menu and began with no cart link. Searching Combination Pliers opened the correct product/default quantity 1; adding/opening Cart Review yielded /checkout, exactly that product and quantity 1, with the user menu still visible. Observation passed without logging credentials. No navigation/session difference required a new abstraction. The initially interrupted invocation was rerun explicitly at the user's request; the completed invocation supplies this evidence.
+
+### 14.3 Implementation and architecture impact
+
+One new TypeScript test in tests/cart.spec.ts: `authenticated user adds a product to cart and sees the selected product and quantity` (T-CART-002). Validate the existing injected positive credential variables inside this test, perform its own LoginPage login, assert account URL/heading, use CatalogPage discovery with the exact product query, verify detail identity/default quantity, add/open via existing ProductDetailsPage/CartPage and assert /checkout, exact [Combination Pliers], quantity 1 and visible authenticated user menu. Final product/quantity assertions remain the primary oracle; the menu check prevents a silently anonymous fallback from satisfying authenticated coverage.
+
+No Page Object, fixture, auth-state framework, API login/helper, storage-state reuse, data framework or shared cart abstraction is added. Every assertion is in the test. Fresh Playwright context per test prevents inherited auth/cart state; T-CART-002 does not depend on T-CART-001 or preceding login tests. Expected suite: 7 original + 2 cart cases = **9 Chromium scenarios**. Existing positive/negative seeded authentication account separation is unchanged. No account values are introduced into source/logs.
+
+### 14.4 Files changed and preserved contracts
+
+| File | Follow-up change |
+| --- | --- |
+| tests/cart.spec.ts | Import existing LoginPage; positive env injection/guards; append T-CART-002; preserve T-CART-001 body/assertions |
+| docs/requirements.md | Human-approved session-neutral REQ-CART-001, L5 decision and two coverage paths |
+| docs/test-catalogue.md | Retain T-CART-001; add T-CART-002 and nine-test traceability |
+| README.md | Current nine-test/session scope and cart command wording |
+| docs/release-05-summary.md | This explicitly separate post-merge follow-up record |
+
+Original seven test files, anonymous cart test body, all Page Objects, SUT lock/tag/SHA/image/platform pins, reset/seed/helper, package/lock/tsconfig, Playwright config and complete workflow remain unchanged. Preserve one worker, zero retries, --forbid-only, native failure trace/screenshot capture, HTML report, failure-only diagnostics artifact and teardown verification. All new automation-owned implementation/scaffolding is TypeScript; no JS/CJS/MJS project source is introduced.
+
+### 14.5 TypeScript and local validation
+
+Observed on Windows, Node 22.21.0:
+
+| Follow-up command / inspection | Result |
+| --- | --- |
+| npm.cmd run typecheck | Passed existing strict configuration across automation-owned TypeScript |
+| npx.cmd playwright test --project=chromium --workers=1 --retries=0 --forbid-only --list | Exactly 9 tests in 3 files |
+| npm.cmd run test:controlled -- tests/cart.spec.ts --grep "authenticated user adds a product to cart" | T-CART-002 independently **1 passed (7.7s)** |
+| npm.cmd run test:controlled -- tests/cart.spec.ts | T-CART-001 and T-CART-002 **2 passed (9.7s)** |
+| npm.cmd run test:controlled | All original seven plus both cart paths **9 passed (20.5s)** |
+| npm.cmd run sut:down and project-label Docker container/network/volume queries | Cleanup in finally succeeded; all three resource lists empty |
+| npx.cmd tsx .sut/review-authenticated-cart.ts; git diff --check | Passed; five intended files only, T-CART-001 body exactly unchanged, original seven/Page Objects/contracts unchanged, PR #8 history retained verbatim, credential scan clean, no JS/CJS/MJS project source introduced |
+
+Each controlled test command completed bounded API/UI/database/catalog readiness and reset/seed/cache clear before tests, with **one worker, zero retries and --forbid-only**. The isolated case ran before either cart/full regression, proving it needed no preceding anonymous/authentication test. Non-fatal NO_COLOR/FORCE_COLOR warnings did not affect results. Local checkout/images/ignored configuration remain cached; all controlled runtime resources were removed. No local-only result substitutes for hosted validation below.
+
+### 14.6 GitHub Actions evidence
+
+Pending actual hosted run, nine-scenario report verification and cleanup. Use existing workflow_dispatch against this branch without adding temporary workflow triggers or changing job behavior.
+
+### 14.7 Risks, review and interview defense
+
+- Requirement approval comes from this explicit leadership decision, not green automation. Original PR #8's Proposed/8-test evidence remains historically accurate; this section supersedes it for current scope/status.
+- Both session paths use one in-stock non-rental product and quantity 1. No broader cart behavior, identity ownership, anonymous-to-authenticated cart migration, cross-user isolation or checkout/payment coverage is claimed.
+- The positive seeded user is shared as an identity by independent browser contexts; controlled reset/seed and separate negative account prevent lock-counter contamination. No tokens/cart IDs are reused. Concurrent manual resets remain unsupported.
+- Native traces can contain authentication/test data on failure; generated configuration is never uploaded. Existing QEMU/registry/runner drift, capture-on-hard-termination and 14-day retention limitations remain.
+- Reviewer: inspect leadership refinement → unchanged anonymous case → own UI login and authenticated indicator → exact cart contents → typecheck → isolated/cart/full local results → actual hosted 9/9/report/teardown → preserved contracts and credential scan.
+- Why no shared cart helper? One short extra path fits existing Page Objects; factoring it would add indirection without demonstrated need.
+- Why verify login and the final user menu? A passing anonymous cart flow alone does not prove authenticated-session coverage.
+- Why keep the same oracle? Cart Review identifies the selected product/quantity in both sessions; toast/badge only are weaker.
+- Why not mark Release 5 closed now? Follow-up execution evidence, human PR review/merge and post-merge checks are distinct gates.
+
+### 14.8 Current Release 5 closure readiness
+
+IN PROGRESS — POST-MERGE CHANGE REQUEST VALIDATION REQUIRED. Approved refined REQ-CART-001; anonymous path retained and authenticated implementation added. Final closure readiness requires isolated authenticated pass, both cart cases, full 9/9, strict typecheck, green hosted CI/report and clean teardown. Commit/push for hosted evidence, persist results, then create an OPEN PR against main and stop. Do not merge or start Release 6. Delivery SHA is recorded in Git history; the eventual PR is authoritative URL/status. No post-creation documentation commit planned.
