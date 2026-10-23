@@ -1,20 +1,52 @@
-const fs = require('node:fs');
-const path = require('node:path');
-const { spawnSync, spawn } = require('node:child_process');
-const dotenv = require('dotenv');
+import fs from 'node:fs';
+import path from 'node:path';
+import { spawnSync, spawn, type SpawnSyncOptionsWithStringEncoding } from 'node:child_process';
+import dotenv from 'dotenv';
+import lockData from '../environment/toolshop.lock.json';
+
+interface ToolshopLock {
+  repository: string;
+  tag: string;
+  commit: string;
+  platform: string;
+  servicePlatforms?: Record<string, string>;
+  images: Record<string, string>;
+}
+
+interface PortMapping {
+  target: number;
+  published: string;
+  host_ip: string;
+  protocol: string;
+}
+
+interface ComposeService {
+  image?: string;
+  platform?: string;
+  build?: unknown;
+  ports?: PortMapping[];
+  [key: string]: unknown;
+}
+
+interface ComposeConfiguration {
+  services: Record<string, ComposeService>;
+  volumes?: Record<string, unknown>;
+}
+
+type RunOptions = Omit<SpawnSyncOptionsWithStringEncoding, 'encoding'>;
 
 const root = path.resolve(__dirname, '..');
 const state = path.join(root, '.sut');
 const upstream = path.join(state, 'upstream');
 const composeFile = path.join(state, 'compose.json');
-const lock = require('../environment/toolshop.lock.json');
+const lock: ToolshopLock = lockData;
 const project = 'toolshop-controlled';
 const ui = 'http://localhost:4200';
 const api = 'http://localhost:8091';
 const controlledEnv = path.join(root, '.env.controlled');
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
 
-function run(command, args, options = {}) {
+function run(command: string, args: string[], options: RunOptions = {}): string {
   const result = spawnSync(command, args, {
     cwd: root, encoding: 'utf8', timeout: 120000, windowsHide: true,
     ...options,
@@ -22,7 +54,7 @@ function run(command, args, options = {}) {
   if (result.error || result.status !== 0) {
     // Do not dump command arguments, environment or raw process output: these
     // can include seeded credentials or application data.
-    throw new Error(`${command} operation failed (${result.error?.code || result.status}).`);
+    throw new Error(`${command} operation failed (${(result.error as NodeJS.ErrnoException | undefined)?.code || result.status}).`);
   }
   return result.stdout?.trim() || '';
 }
@@ -70,10 +102,10 @@ function provision() {
 function prepareCompose() {
   // Normalize the pinned official production Compose, then keep only the four
   // required services. Application source remains external and unmodified.
-  const official = JSON.parse(run('docker', ['compose', '-f', path.join(upstream, 'docker-compose.prod.yml'), 'config', '--format', 'json'], {
+  const official: ComposeConfiguration = JSON.parse(run('docker', ['compose', '-f', path.join(upstream, 'docker-compose.prod.yml'), 'config', '--format', 'json'], {
     env: { ...process.env, SPRINT: 'sprint5', DISABLE_LOGGING: 'true' },
   }));
-  const services = {};
+  const services: Record<string, ComposeService> = {};
   for (const [name, image] of Object.entries(lock.images)) {
     if (!official.services[name] || !/@sha256:[a-f0-9]{64}$/.test(image)) throw new Error('Invalid locked SUT service.');
     services[name] = { ...official.services[name], image, platform: lock.servicePlatforms?.[name] || lock.platform };
@@ -88,9 +120,9 @@ function prepareCompose() {
   fs.writeFileSync(composeFile, JSON.stringify({ services, volumes }, null, 2) + '\n', { mode: 0o600 });
 }
 
-function compose(args, options) {
+function compose(args: string[], options?: RunOptions): string {
   if (!fs.existsSync(composeFile)) throw new Error('No controlled Compose state. Run npm run sut:up first.');
-  const generated = JSON.parse(fs.readFileSync(composeFile, 'utf8'));
+  const generated: ComposeConfiguration = JSON.parse(fs.readFileSync(composeFile, 'utf8'));
   for (const [service, image] of Object.entries(lock.images)) {
     if (generated.services[service]?.image !== image) throw new Error('Generated Compose image lock differs. Run sut:up again.');
   }
@@ -106,7 +138,7 @@ function diagnostics() {
   console.error('Inspect further with docker compose -p toolshop-controlled -f .sut/compose.json logs --tail=50 (review before sharing).');
 }
 
-async function bounded(label, check, timeout = 180000) {
+async function bounded(label: string, check: () => boolean | Promise<boolean>, timeout = 180000): Promise<void> {
   const end = Date.now() + timeout;
   while (Date.now() < end) {
     try { if (await check()) { console.log(`${label} ready.`); return; } } catch { /* retry within deadline */ }
@@ -122,7 +154,7 @@ async function ready() {
   }
   await bounded('API', async () => {
     const response = await fetch(`${api}/status`, { signal: AbortSignal.timeout(3000) });
-    const body = await response.json();
+    const body = await response.json() as { version?: unknown };
     return response.ok && typeof body.version === 'string';
   });
   await bounded('Frontend', async () => {
@@ -142,24 +174,25 @@ async function reset() {
   await ready();
   await bounded('Seeded catalog', async () => {
     const response = await fetch(`${api}/products`, { signal: AbortSignal.timeout(3000) });
-    const body = await response.json();
+    const body = await response.json() as { data?: unknown };
     return response.ok && Array.isArray(body.data) && body.data.length > 0;
   });
   console.log('Controlled database reset and seeded; accounts, lock counters and catalog restored.');
 }
 
-async function test(args) {
+async function test(args: string[]): Promise<number> {
   const values = { ...dotenv.parse(fs.readFileSync(controlledEnv)), ...process.env };
   for (const key of ['TEST_USER_EMAIL', 'TEST_USER_PASSWORD', 'TEST_NEGATIVE_USER_EMAIL']) {
     if (!values[key]?.trim()) throw new Error(`Missing controlled environment variable: ${key}`);
   }
-  if (values.TEST_USER_EMAIL.trim().toLowerCase() === values.TEST_NEGATIVE_USER_EMAIL.trim().toLowerCase()) {
+  // The required-variable guards above establish both values before use.
+  if (values.TEST_USER_EMAIL!.trim().toLowerCase() === values.TEST_NEGATIVE_USER_EMAIL!.trim().toLowerCase()) {
     throw new Error('Controlled positive and negative accounts must be different.');
   }
   await ready();
   await reset();
   console.log(`Running Chromium against ${ui}, all scenarios, one worker, zero retries.`);
-  return await new Promise((resolve, reject) => {
+  return await new Promise<number>((resolve, reject) => {
     const child = spawn(process.execPath, [require.resolve('@playwright/test/cli'), 'test', '--project=chromium', '--workers=1', '--retries=0', '--forbid-only', ...args], {
       cwd: root, stdio: 'inherit', windowsHide: true,
       env: { ...values, BASE_URL: ui, PLAYWRIGHT_HTML_OPEN: 'never' },
@@ -201,4 +234,4 @@ async function main() {
   } finally { fs.rmdirSync(operationLock); }
 }
 
-main().catch(error => { console.error(error.message); process.exitCode = 1; });
+main().catch((error: Error) => { console.error(error.message); process.exitCode = 1; });

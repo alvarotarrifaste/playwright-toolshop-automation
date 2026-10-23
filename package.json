@@ -2,21 +2,23 @@
   "name": "playwright-toolshop-automation",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
-    "sut:provision": "node scripts/toolshop.cjs provision",
-    "sut:up": "node scripts/toolshop.cjs up",
-    "sut:ready": "node scripts/toolshop.cjs ready",
-    "sut:reset": "node scripts/toolshop.cjs reset",
-    "sut:down": "node scripts/toolshop.cjs down",
-    "test:controlled": "node scripts/toolshop.cjs test"
+    "typecheck": "tsc --noEmit",
+    "sut:provision": "tsx scripts/toolshop.ts provision",
+    "sut:up": "tsx scripts/toolshop.ts up",
+    "sut:ready": "tsx scripts/toolshop.ts ready",
+    "sut:reset": "tsx scripts/toolshop.ts reset",
+    "sut:down": "tsx scripts/toolshop.ts down",
+    "test:controlled": "tsx scripts/toolshop.ts test"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@playwright/test": "^1.64.1",
-    "@types/node": "^26.6.5"
+    "@types/node": "^26.6.5",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2"
   },
   "dependencies": {
     "dotenv": "^18.0.8"

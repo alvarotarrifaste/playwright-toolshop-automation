@@ -64,7 +64,7 @@ Local generated directories include `node_modules/` (dependencies), `playwright-
 
 The controlled environment below is the reference target. The public deployment is for optional manual/exploratory comparison only; a public-host pass is not controlled-environment evidence.
 
-Use Node.js 20 or newer, as required by the current Playwright dependency, with npm available. Run commands from the repository root.
+Use Node.js 22 with npm for the controlled environment and CI. Run commands from the repository root.
 
 1. Install dependencies:
 
@@ -98,6 +98,8 @@ dotenv loads `.env` without overriding externally supplied environment variables
 The public practice environment has been observed to remove accounts over time. If valid login starts failing, confirm the account still exists before changing the tests.
 
 ## Controlled environment
+
+The environment helper is TypeScript: `scripts/toolshop.ts`. Existing npm lifecycle commands execute it through the development dependency `tsx`. Run `npm run typecheck` to check the helper, tests, Page Objects and Playwright configuration with strict TypeScript (`tsc --noEmit`); CI runs that check after `npm ci`. No compiled JavaScript is generated or committed. See the [TS migration hotfix record](docs/ts-migration-hotfix-summary.md).
 
 Prerequisites: Node.js 22 with npm, Git, and Docker Engine with **Linux containers** and Docker Compose v2 or newer running (Docker Desktop with WSL2 on Windows). Allow the initial image download; ports `4200` and `8091` must be free. API/UI/database use `linux/amd64`; the pinned official gateway is `linux/arm64` and requires ARM64 emulation on AMD64 hosts (validated with Docker Desktop).
 
