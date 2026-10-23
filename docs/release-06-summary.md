@@ -82,11 +82,33 @@ Read-only local lifecycle checks: Docker client/engine **29.9.2**, Compose **v5.
 
 ## 10. GitHub Actions evidence
 
-Pending actual GitHub-hosted run, report artifact inspection and teardown evidence. A local pass alone does not close this release.
+Verified actual [GitHub-hosted run 40021985728](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40021985728), [Chromium job 120648575896](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40021985728/job/120648575896): workflow_dispatch, attempt 1, implementation commit **28dee21cc3827c1f607d721d138474c50fbecca3**, 2026-10-23 20:48–20:49 UTC. Run/job conclusion **success**. Existing workflow dispatched with ref=release/06-cart-maintenance; no temporary trigger, failure injection or workflow change. Final evidence-only commit changes this package, not the tested runtime tree.
+
+Runner: Ubuntu 24.04 AMD64 (OS 24.04.5 LTS), image 20261012.334.1, Node 22.23.3 / npm 10.9.9, Docker Engine 28.0.4, Compose v2.38.2. npm ci, strict typecheck and Chromium/system dependency installation passed.
+
+| Lifecycle evidence (UTC) | Observed result |
+| --- | --- |
+| 20:48:39, provision / up | Official tag 2.5 and exact SHA 9e7736c3841ec2bbb9a6822c9e6602353b7b9a65 verified; unchanged pinned environment provisioned |
+| 20:49:09 API; 20:49:19 UI | Bounded startup readiness passed; separate sut:ready passed at 20:49:20 |
+| 20:49:20–21 architecture/scheduler check | Exact pinned web image inspected as linux/arm64; gateway execution aarch64 through existing QEMU on AMD64; four controlled services; APP_ENV=local; no destructive migrate:fresh registration |
+| 20:49:25 reset/seed | Database/accounts/lock counters/catalog restored; API/frontend/seeded-catalog readiness passed before browser execution |
+| 20:49:26–43 Chromium | **11 passed (17.4s)**; Running 11 tests using 1 worker; zero retries, unchanged --forbid-only helper; all nine baseline and two maintenance scenarios executed |
+| 20:49:45 teardown | sut:down succeeded; explicit project-label guards confirmed **Controlled containers, networks and volumes absent.** |
+| 20:49:46 artifacts | HTML upload succeeded; failure-only raw diagnostics upload skipped as expected on green |
+
+No public Toolshop dependency, repository account secrets, assertions weakened, retries introduced or baseline tests excluded. Release 4 retain-on-failure trace, only-on-failure screenshot, HTML reporter and failure-only diagnostics artifact remain byte-for-byte unchanged. Green tests correctly retain no trace/screenshot attachments; this release does not claim a new controlled-failure experiment (see Release 4 for that historical evidence).
+
+### Report artifact and inspection
+
+Downloaded [playwright-report artifact 12531211362](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40021985728/artifacts/12531211362), **205,639 ZIP bytes**, unexpired when inspected. SHA256 **a8b541b20fe1433b3833dbdd77a383a45beae6011614e16f3243493ec3aaa565**, independently computed from download and equal to GitHub's digest. Created 2026-10-23T20:49:46Z; expiry 2026-11-06T20:49:45Z (14-day retention).
+
+Inspection command: existing ignored GitHub download helper fetched /actions/artifacts/12531211362/zip into .sut/release06-report.zip; `npx.cmd tsx .sut/inspect-release06-report.ts .sut/release06-report.zip` extracted the native HTML's embedded report JSON. Outer ZIP contains index.html; native report metadata links this run and implementation SHA. Verified total=11, expected=11, unexpected=0, flaky=0, skipped=0, ok=true, actualWorkers=1, errors=[]; exact eleven test titles match repository specs, each with one passed result and retry=0, no retained failure attachments. This proves both new scenarios executed, rather than relying solely on a green job badge.
+
+To review: download/extract playwright-report and run `npx playwright show-report <extracted-directory>`. Select each maintenance scenario to review its actions and expectations. On a future failure, use the unchanged report attachments and playwright-test-results artifact; `npx playwright show-trace <trace.zip>` opens the trace and the PNG can be viewed directly. Keep report files together; diagnostics may contain test data. Artifacts expire, so these durable results/IDs/digest supplement the temporary downloadable report.
 
 ## 11. Risks / limitations
 
-Requirements 002/003 remain proposed pending human review. Anonymous happy paths only; no inferred authenticated-maintenance coverage. Fixed prices intentionally belong to the controlled seed/pins. Delete locator depends on the unlabelled upstream DOM. The empty-message discrepancy, source/image build provenance and untested repeated-add aggregation remain limitations. No discounts, limits, stock exhaustion, checkout/payment or cross-session persistence claimed. Existing native failure traces/screenshots/HTML and failure-only diagnostic upload must remain unchanged; no new failure injection is required for these functional additions.
+Requirements 002/003 remain proposed pending human review. Anonymous happy paths only; no inferred authenticated-maintenance coverage. Fixed prices intentionally belong to the controlled seed/pins. Delete locator depends on the unlabelled upstream DOM. The empty-message discrepancy, source/image build provenance and untested repeated-add aggregation remain limitations. No discounts, limits, stock exhaustion, checkout/payment or cross-session persistence claimed. Native failure traces/screenshots/HTML and failure-only diagnostic upload are unchanged; no new failure injection was performed for these functional additions. GitHub runner/Node patch versions can drift and hosted report retention is 14 days. None blocked this scoped implementation or its observed green execution.
 
 ## 12. Reviewer guide
 
@@ -103,4 +125,6 @@ Review pinned AC2/AC3 and observation above → proposed requirements/catalogue 
 
 ## 14. Release status
 
-Discovery/proposal, implementation, strict typecheck, both isolated runs, cart regression, full 11/11 local regression and verified teardown complete. Baseline/protected-source review and workflow syntax passed. An implementation commit/push is necessary to run the unchanged manual-dispatch workflow on GitHub-hosted infrastructure before PR creation. CI/artifact verification and final evidence commit/review remain pending. Proposed requirements await human leadership review; no merge or release approval claimed.
+**Implementation and validation complete; ready for human review.** Strict typecheck passed; isolated scenarios 1/1 each; cart regression 4/4; full local regression 11/11; GitHub-hosted regression 11/11, one worker, zero retries; report downloaded/verified; local and hosted teardown verified. Baseline/protected-source review and unchanged-workflow syntax passed. Entire original requirement prefix (including REQ-CART-001), all nine existing tests and their catalogue rows, pins, lifecycle, dependencies, config, diagnostics and workflow are preserved. Final diff is limited to the six files in section 7; no credential or JavaScript source introduced.
+
+Git delivery: base main db419ea86bbd720f5c95ac18b43ef16111502792; branch release/06-cart-maintenance; implementation commit 28dee21cc3827c1f607d721d138474c50fbecca3. A final documentation-only evidence commit follows the verified hosted run. PR title: **test: add cart maintenance coverage**; target main; open, not draft, with no merge authorization. PR creation is the final delivery action after evidence commit/push; its returned URL belongs in the handoff. The automatic PR-event run may start afterward and is not represented as an already completed run here. Human leadership retains requirement approval and merge decisions. No Release 7 work.
