@@ -4,7 +4,7 @@ A Playwright + TypeScript automation project targeting [Practice Software Testin
 
 ## Current scope and status
 
-Seven independent UI scenarios are implemented. The latest Release 1 Chromium execution passed all 7 tests with 0 failures (13.9 seconds), after the human reviewer reported unlocking the account. See [execution history and investigation](docs/release-01-validation.md) for earlier failures. No test behavior was changed to obtain a green result.
+Eight independent UI scenarios are implemented: the original seven Authentication/Product Discovery tests plus Release 5 Add to Cart. The existing seven tests retain their assertions. See the [Release 5 Package](docs/release-05-summary.md) for current controlled execution evidence; [Release 1 history](docs/release-01-validation.md) records the earlier public-host account investigation.
 
 Authentication:
 
@@ -19,12 +19,16 @@ Product Discovery:
 - Search with no results.
 - Open a product from search results and validate its name and visible Add to cart button.
 
-The tests use `LoginPage`, `CatalogPage`, and `ProductDetailsPage` Page Objects for interactions and locators, with assertions in the test files. Chromium is the only enabled browser project.
+Add to Cart:
+
+- Discover the seeded Combination Pliers, add quantity 1 and verify that cart review contains exactly that product and quantity.
+
+The tests use `LoginPage`, `CatalogPage`, `ProductDetailsPage` and `CartPage` Page Objects for interactions and locators, with assertions in the test files. Chromium is the only enabled browser project.
 
 ## Release 1 traceable baseline
 
 - [Requirements and evidence](docs/requirements.md): approval status is separate from evidence; existing tests do not establish official intent.
-- [Seven-test catalogue and mapping](docs/test-catalogue.md): implemented assertions, prerequisites and coverage gaps.
+- [Test catalogue and mapping](docs/test-catalogue.md): eight implemented scenarios, prerequisites and coverage gaps; original seven preserved.
 - [ADR-001: preserve current architecture](docs/adr-001-preserve-baseline.md).
 - [Release 1 validation evidence](docs/release-01-validation.md).
 
@@ -46,9 +50,11 @@ pages/
   LoginPage.ts          # Login and logout locators/actions
   CatalogPage.ts        # Catalog search and product navigation
   ProductDetailsPage.ts # Product detail locators
+  CartPage.ts           # Cart navigation and product/quantity locators
 tests/
   login.spec.ts         # Four Authentication UI tests
   product-discovery.spec.ts # Three Product Discovery UI tests
+  cart.spec.ts          # One Add to Cart UI regression test
 playwright.config.ts   # Browser, base URL, reporting and environment loading
 package.json           # Project dependencies
 package-lock.json      # Locked dependency versions
@@ -119,7 +125,7 @@ UI: `http://localhost:4200`. API: `http://localhost:8091`. `sut:up` provisions i
 
 Provisioning generates ignored `.env.controlled` from the pinned official seeder without printing its values. Required variables are `TEST_USER_EMAIL`, `TEST_USER_PASSWORD`, and `TEST_NEGATIVE_USER_EMAIL`; positive tests use the first seeded customer and the incorrect-password test uses the second. No passwords are embedded in tests or documentation. Existing `.env.controlled` is preserved; external environment variables take precedence.
 
-`test:controlled` resets/seeds before every run, then executes all seven Chromium scenarios against the controlled UI with one worker and zero retries. It does not run a tag-filtered subset. To repeat Authentication only after a restart, use `npm run test:controlled -- tests/login.spec.ts`. Reports remain in ignored `playwright-report/`. `sut:down` removes the controlled containers, network and volumes; it retains images, the external checkout and local credential file for reuse.
+`test:controlled` resets/seeds before every run, then executes all eight Chromium scenarios against the controlled UI with one worker and zero retries. It does not run a tag-filtered subset. To repeat Authentication only after a restart, use `npm run test:controlled -- tests/login.spec.ts`; Add to Cart alone uses `npm run test:controlled -- tests/cart.spec.ts`. Reports remain in ignored `playwright-report/`. `sut:down` removes the controlled containers, network and volumes; it retains images, the external checkout and local credential file for reuse.
 
 On startup/readiness failure, the command exits nonzero and prints service status plus a focused logs command; it does not start tests. If a lifecycle command is forcibly interrupted, confirm no operation is running before removing the empty `.sut/operation.lock` directory. Lifecycle commands serialize access to this one local environment; direct Playwright/manual sessions must not overlap resets.
 
@@ -129,7 +135,7 @@ See [ADR-002](docs/adr-002-controlled-toolshop.md) and the [persistent Release P
 
 The [controlled Chromium workflow](.github/workflows/playwright.yml) runs on pull requests targeting `main`, pushes to `main`, and manual dispatch (after the workflow exists on `main`). It uses Ubuntu 24.04 AMD64, Node 22, `npm ci`, and `npx playwright install --with-deps chromium`. The pinned ARM64 gateway runs through Docker's QEMU setup; API/UI/database run natively on AMD64. The SUT version and image digests are unchanged from Release 2.
 
-CI runs `sut:provision`, `sut:up`, `sut:ready` and `test:controlled`. The last command resets/seeds and runs all seven scenarios, including incorrect-password authentication, with one worker, zero retries and `--forbid-only`. It generates/injects the ignored controlled accounts; no public-host account secrets are required. Teardown runs with `always()` after dependency installation and checks that project containers, networks and volumes are absent.
+CI runs `sut:provision`, `sut:up`, `sut:ready` and `test:controlled`. The last command resets/seeds and runs all eight scenarios, including incorrect-password authentication and Add to Cart, with one worker, zero retries and `--forbid-only`. It generates/injects the ignored controlled accounts; no public-host account secrets are required. Teardown runs with `always()` after dependency installation and checks that project containers, networks and volumes are absent.
 
 Download `playwright-report` from the workflow run's Artifacts section, extract it and open with `npx playwright show-report <directory>`. HTML reports are retained for 14 days and uploaded when test execution was attempted, including test failure. Failed test steps also upload `playwright-test-results` with available traces, screenshots and error context. Setup failures before tests may generate no report or diagnostics. See the [Release 3 Package](docs/release-03-summary.md) for the CI baseline and [Release 4 Package](docs/release-04-summary.md) for validated failure evidence.
 
@@ -182,7 +188,7 @@ For a failed CI run, download/extract `playwright-report` and open it with `npx 
 
 ## Planned evolution — not implemented
 
-- Cart coverage
+- Further cart coverage (quantity changes, removal, repeated adds)
 - Checkout coverage
 - API automation
 - Git/GitHub workflow evolution
