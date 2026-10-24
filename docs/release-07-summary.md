@@ -91,11 +91,33 @@ Read-only environment checks: Docker client/engine **29.9.2**, Compose **v5.6.1*
 
 ## 11. GitHub Actions evidence
 
-Pending actual hosted run, report artifact verification and clean teardown. A local green run alone is insufficient.
+Actual [hosted run 40119286350](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40119286350), [Chromium job 120947101085](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40119286350/job/120947101085): **success**, workflow_dispatch attempt 1 on implementation commit **1ef4cb2a4b0bbb8307f740b4d274ab7f14d18159**, 2026-10-24 18:07–18:09 UTC. The existing workflow was dispatched with ref=release/07-category-filtering; no temporary triggers, flags or workflow changes. Final evidence-only commit changes this package, not the tested runtime tree.
+
+Runner: Ubuntu 24.04 AMD64, image 20261012.334.1, Node **22.23.3**, npm **10.9.9**, Docker Engine **28.0.4**, Compose **v2.38.2**. Dependency install via npm ci, strict typecheck and Chromium/system dependency setup all passed.
+
+| Hosted lifecycle evidence (UTC) | Result |
+| --- | --- |
+| 18:08:34 provisioning/start | Official tag 2.5 and exact upstream SHA verified; unchanged locked image environment provisioned |
+| 18:09:04 API; 18:09:14 frontend | Bounded startup readiness passed; independent sut:ready passed at 18:09:15 |
+| 18:09:15–16 architecture/scheduler | Exact pinned gateway inspected as linux/arm64, aarch64 execution through existing QEMU on AMD64 passed; APP_ENV=local, four controlled services, no destructive migrate:fresh registration |
+| 18:09:19 reset/seed | Accounts, login counters and catalogue restored; API/frontend/seeded-catalog readiness passed before tests |
+| 18:09:20–38 test execution | **13 passed (18.0s)**, one worker, zero retries, unchanged --forbid-only; all eleven baseline and both category scenarios executed |
+| 18:09:40 teardown | sut:down passed; explicit label-filter guards verified **Controlled containers, networks and volumes absent.** |
+| 18:09:41 artifacts | HTML report uploaded; failure-only diagnostics correctly skipped on green |
+
+No public Toolshop target or account secrets introduced. Original assertions, controlled lifecycle and Release 4 retain-on-failure trace, only-on-failure screenshot, HTML reporter and failure-only artifact conditions are unchanged. Passing tests correctly retain no failure attachments. This is not a new controlled-failure experiment; historical failure-path evidence remains in the Release 4 package.
+
+### Artifact/report verification
+
+Downloaded [playwright-report artifact 12569799474](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40119286350/artifacts/12569799474): **208,932 ZIP bytes**, unexpired when inspected; SHA256 **e2b7122f7817516de33d8c8684eca753cffe6fab03bdea285a238ca36c200a51** independently computed and equal to GitHub's digest. Created 2026-10-24T18:09:41Z, expires 2026-11-07T18:09:40Z (14 days).
+
+Existing ignored authenticated GitHub helper downloaded /actions/artifacts/12569799474/zip to .sut/release07-report.zip. `npx.cmd tsx .sut/inspect-release07-report.ts .sut/release07-report.zip` inspected index.html and its native embedded report/detail JSON. Verified total=13, expected=13, unexpected=0, flaky=0, skipped=0, ok=true, actualWorkers=1, errors=[]; exact thirteen titles match current repository specs, with exactly one passed result each, retry=0, no retained failure attachments. Metadata links this run and tested implementation SHA. Both new tests are present, rather than inferred from a green job badge.
+
+Review by downloading/extracting the artifact and running `npx playwright show-report <extracted-directory>`. Keep report files together. Future failures retain native trace/screenshot attachments and the separate playwright-test-results artifact; open traces with `npx playwright show-trace <trace.zip>`. Report retention is temporary; IDs, checksum and verified results are persisted here.
 
 ## 12. Risks / limitations
 
-REQ-CATALOG-005 remains proposed; REQ-CATALOG-002 retains Requires confirmation. Exact expected sets depend on the controlled seed/pins; initial-page restoration does not cover other pages. Only category state is checked during search reset; no general all-filter reset claim. Anonymous/default English desktop Chromium only. Hierarchy, multiple categories, combination with brands/price, persistence/reload and authentication variants are deferred. Existing source/image provenance and hosted-runner drift limitations remain; no SUT redesign. Report/diagnostic retention is 14 days; diagnostics may contain test data. No new controlled-failure injection is planned; Release 4 settings and failure-only uploads must remain intact.
+REQ-CATALOG-005 remains proposed; REQ-CATALOG-002 retains Requires confirmation. Exact expected sets depend on the controlled seed/pins; initial-page restoration does not cover other pages. Only category state is checked during search reset; no general all-filter reset claim. Anonymous/default English desktop Chromium only. Hierarchy, multiple categories, combination with brands/price, persistence/reload and authentication variants are deferred. Existing source/image provenance and hosted-runner drift limitations remain; no SUT redesign. Report/diagnostic retention is 14 days; diagnostics may contain test data. No new controlled-failure injection was performed; Release 4 settings and failure-only uploads remain unchanged. No blocker to this focused implementation or observed green execution.
 
 ## 13. Reviewer guide
 
@@ -112,4 +134,8 @@ First inspect the separate Release 6 closure commit and retained history. Then r
 
 ## 15. Release status
 
-Release 6 closure complete in its separate first commit. Release 7 discovery/proposal, implementation, strict typecheck, isolated 1/1 each, impacted 5/5, full controlled local 13/13 and verified cleanup complete. Protected-source review and unchanged-workflow syntax passed. An implementation commit/push is necessary to execute hosted manual dispatch before PR creation; CI/artifact verification, final evidence commit and open PR remain pending. REQ-CATALOG-005 remains Proposed; existing REQ-CATALOG-002 remains Requires confirmation. No approval inferred, merge or Release 8 work.
+**Release 7 implementation and validation complete; ready for human review.** Release 6 CLOSED reconciliation is its separate first commit. Strict TS typecheck passed; isolated scenarios **1/1 each**; impacted regression **5/5**; full local **13/13**; hosted **13/13**, one worker, zero retries; artifact downloaded/checksum/native-report verified; local and hosted teardown verified. Protected-source and final diff review confirm existing eleven scenarios/assertions, previous CatalogPage methods, requirement meanings/statuses after Step 0, SUT pins, helper, dependencies, strict config, workflow and diagnostics are preserved. Original Release 6 pre-merge history remains intact. Only the seven listed files differ from main; no generated credential or new JavaScript source delivered.
+
+Git delivery: base main 127cd227d9bacfb9a4649d02d4aade79e3666a18; branch release/07-category-filtering. First commit **9a77acb8ca951dc3a7be97231fb1171a688fe351**, docs: close Release 6 cart maintenance. Implementation **1ef4cb2a4b0bbb8307f740b4d274ab7f14d18159**, test: add Release 7 category filtering coverage. A final documentation-only evidence commit follows hosted verification. PR title **test: add category filtering coverage**, target main, open/not draft. Creation is the final delivery action after evidence commit/push; returned URL belongs in the handoff. Any automatic PR-event run begins afterward and is not represented as already complete here.
+
+REQ-CATALOG-005 remains **Proposed**; existing REQ-CATALOG-002 remains **Requires confirmation**. Human leadership owns requirement approval and merge. No merge or Release 8 work.
