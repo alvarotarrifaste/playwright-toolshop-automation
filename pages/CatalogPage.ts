@@ -7,6 +7,9 @@ export class CatalogPage {
   readonly searchCompleted: Locator;
   readonly searchResultCount: Locator;
   readonly productNames: Locator;
+  readonly categoryCheckboxes: Locator;
+  readonly selectedCategoryCheckboxes: Locator;
+  readonly filterCompleted: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -15,6 +18,9 @@ export class CatalogPage {
     this.searchCompleted = page.locator('[data-test="search_completed"]');
     this.searchResultCount = page.locator('[data-test="search-result-count"]');
     this.productNames = page.locator('[data-test="product-name"]');
+    this.categoryCheckboxes = page.locator('input[name="category_id"]');
+    this.selectedCategoryCheckboxes = page.locator('input[name="category_id"]:checked');
+    this.filterCompleted = page.locator('[data-test="filter_completed"]');
   }
 
   async goto(): Promise<void> {
@@ -28,5 +34,17 @@ export class CatalogPage {
 
   async openProduct(name: string): Promise<void> {
     await this.productNames.and(this.page.getByText(name, { exact: true })).click();
+  }
+
+  categoryCheckbox(name: string): Locator {
+    return this.categoryCheckboxes.and(this.page.getByRole('checkbox', { name, exact: true }));
+  }
+
+  async selectCategory(name: string): Promise<void> {
+    await this.categoryCheckbox(name).check();
+  }
+
+  async clearCategory(name: string): Promise<void> {
+    await this.categoryCheckbox(name).uncheck();
   }
 }
