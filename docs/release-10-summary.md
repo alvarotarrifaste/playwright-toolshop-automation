@@ -146,3 +146,23 @@ First compare the initial mandatory-login hypothesis with guest evidence and the
 Discovery and proposal complete; two UI scenarios implemented without changing the fourteen baseline scenario bodies/assertions. Guest exception explicitly narrows the original hypothesis. REQ-CHECKOUT-001 remains Proposed. Strict typecheck PASS; isolated scenarios 1/1 each; impacted 11/11; full local and hosted **16/16 (15 UI + 1 API)**; three evidence-security checks PASS; unchanged one worker/zero retries/forbid-only, reset/seed and clean teardown verified. Purchase counts remain seeded 200/200 and no purchase-capable test action was added. Public artifact/log scans, hashes and raw HTML withholding independently verified. No remaining implementation/validation blocker; guest exception and normal-path UI coverage limits remain explicit.
 
 Delivery: base main **5e4547bb03bf091e0bc54d88bc168e040d1acfe6**; branch **release/10-billing-validation**; implementation **13a5a7beeb4915cb4a5cb357cc898eb91a43ae3a**, test: add billing authentication boundary coverage. Final documentation-only evidence commit follows hosted verification. PR title **test: add Release 10 billing validation**, target main, open/not draft. PR creation is the final delivery action after evidence commit/push; returned URL belongs in the handoff. No merge or Release 11 work.
+
+## 16. Post-merge human closure
+
+This separate record preserves original sections 1–15, including the Proposed requirement, pre-merge observations and execution history. It does not retroactively attribute approval to earlier evidence.
+
+**L10 — explicit human leadership approval**, supplied for Release 11 Step 0 after [PR #14](https://github.com/alvarotarrifaste/playwright-toolshop-automation/pull/14) merged. Merge commit: **676a04a49ad0255728c57b43e5c4b2d7ff6bf966**. Post-merge [run 40393903039](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40393903039) is the closure execution evidence supplied by leadership.
+
+| Post-merge closure evidence | Result |
+| --- | --- |
+| Strict typecheck | **PASS** |
+| CI-evidence security checks | **3/3 PASS** |
+| Controlled functional suite | **16/16 PASS: 15 UI + 1 API** |
+| Execution contract | **One worker, zero retries** |
+| Reset/seed and teardown | **PASS** |
+| Public evidence | Sanitized **controlled-results uploaded** |
+| Raw HTML | **Withheld** by the existing security boundary |
+
+**REQ-CHECKOUT-001 Approved** by human leadership; T-CHECKOUT-001 and T-CHECKOUT-002 map to that approved requirement without scope/assertion changes. Approval preserves the guest exception and the pre-billing identity-step boundary; it does not approve a universal mandatory-login claim or purchase behavior.
+
+**Release 10 CLOSED.** This three-document reconciliation is committed separately as `docs: close Release 10 billing validation` before Release 11 implementation. Release 11 discovery/proposal remains separate from this closure.

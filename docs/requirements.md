@@ -96,9 +96,13 @@ Risk value: detect unauthenticated disclosure of customer profile data and incor
 
 Pinned evidence at `9e7736c3841ec2bbb9a6822c9e6602353b7b9a65`: [routes](https://github.com/testsmith-io/practice-software-testing/blob/9e7736c3841ec2bbb9a6822c9e6602353b7b9a65/sprint5/API/routes/api.php), [UserController](https://github.com/testsmith-io/practice-software-testing/blob/9e7736c3841ec2bbb9a6822c9e6602353b7b9a65/sprint5/API/app/Http/Controllers/UserController.php), [Authenticate](https://github.com/testsmith-io/practice-software-testing/blob/9e7736c3841ec2bbb9a6822c9e6602353b7b9a65/sprint5/API/app/Http/Middleware/Authenticate.php), [UserService](https://github.com/testsmith-io/practice-software-testing/blob/9e7736c3841ec2bbb9a6822c9e6602353b7b9a65/sprint5/API/app/Services/UserService.php).
 
-## Checkout identity and Billing progression — Release 10 proposal
+## Checkout identity and Billing progression — Release 10
 
-**REQ-CHECKOUT-001 — Proposed, human approval pending.** For a nonempty cart, normal checkout progression presents a session-dependent identity step before Billing Address. A fresh anonymous session sees the default login form (email/password/submit) and the guest-choice alternative; Billing Address and Payment are not the active visible step before an identity choice. An already authenticated seeded customer is acknowledged at the same step, receives no login credential form, and can proceed to the visible Billing Address form without signing in again.
+<a name="checkout-identity-and-billing-progression--release-10-proposal"></a>
+
+**REQ-CHECKOUT-001 — Approved, explicit post-merge human leadership decision (L10).** For a nonempty cart, normal checkout progression presents a session-dependent identity step before Billing Address. A fresh anonymous session sees the default login form (email/password/submit) and the guest-choice alternative; Billing Address and Payment are not the active visible step before an identity choice. An already authenticated seeded customer is acknowledged at the same step, receives no login credential form, and can proceed to the visible Billing Address form without signing in again.
+
+**L10 approval source:** explicit human leadership approval supplied for Release 11 Step 0 after merged PR #14, merge commit `676a04a49ad0255728c57b43e5c4b2d7ff6bf966` and post-merge run `40393903039`. Original status was **Proposed, human approval pending**; original sections 1–15 of the [Release 10 package](release-10-summary.md) preserve that history, followed by the separate [human closure](release-10-summary.md#16-post-merge-human-closure). Source and passing tests did not confer approval. The guest exception, scope and unrelated approvals are unchanged.
 
 Recommended UI coverage: **T-CHECKOUT-001** (anonymous identity prompt before billing) and **T-CHECKOUT-002** (authenticated acknowledgement and continuation to billing). Assertions remain test-owned; each test creates its own browser session/cart, and the authenticated case performs its own existing LoginPage UI login.
 
