@@ -79,11 +79,11 @@ No new configuration URL, credential, generated resource ID, token or secret is 
 
 Seeded product names/prices, documented UI text, HTTP statuses, synthetic billing and initial invoice status remain readable intentional test oracles. Dynamic cart/invoice identities still come from runtime responses. No oracle was moved into a generic data layer. No dependencies, package-lock, env exclusions, source pins or secret-handling changes.
 
-Documentation reconciliation corrects current catalogue R10/R11 Proposed wording using recorded L10 and supplied L11 human decisions. Tracked R7/R8 records contain no explicit REQ-CATALOG-005 approval; it remains Proposed pending a sourced human decision. REQ-CATALOG-002 and other Requires confirmation/Deferred items are not promoted. Historical packages remain historical.
+Documentation reconciliation corrects current catalogue R10/R11 Proposed wording using recorded L10 and supplied L11 human decisions. During this release, human leadership explicitly approved REQ-CATALOG-005 on 2026-10-26 (L12-CATALOG). Current requirements and T-CATALOG-004 now record Approved, with a separate appended approval record in the Release 7 package preserving its original Proposed history. REQ-CATALOG-002 and other Requires confirmation/Deferred items are not promoted. Historical packages remain historical.
 
 ## 9. Files moved/changed
 
-Thirteen moves: eight specs and five Page Objects, mapped above. Test edits are solely import relocation and native tags; Page Object contents are unchanged. `package.json` adds seven aliases. README is rewritten. `docs/requirements.md` and `docs/test-catalogue.md` follow current test paths and approval wording. This detailed package is new. Step 0 separately updated requirements, catalogue and the append-only R11 closure.
+Thirteen moves: eight specs and five Page Objects, mapped above. Test edits are solely import relocation and native tags; Page Object contents are unchanged. `package.json` adds seven aliases. README is rewritten. `docs/requirements.md` and `docs/test-catalogue.md` follow current test paths and approval wording. This detailed package is new. Step 0 separately updated requirements, catalogue and the append-only R11 closure. A later explicit human approval also appends a separate REQ-CATALOG-005 approval record to Release 7; original sections remain unchanged.
 
 The compact CI result builder now classifies layer from native `@api` metadata instead of the old API filename. Its existing third security test covers API and UI classification while retaining secret-exclusion/failure assertions; the check count stays three. Scanner rules, public-field allowlist, staging and publication are unchanged.
 
