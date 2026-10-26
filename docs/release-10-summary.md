@@ -99,7 +99,26 @@ Each invocation independently reset/seeded and passed bounded readiness, configu
 
 ## 11. CI/security evidence
 
-Hosted execution and independent artifact/log audit pending implementation commit/push. Existing public boundary remains: full local HTML/raw output private; only compact allowlisted results or fully inspectable clean candidates may upload; raw packed/sensitive HTML/diagnostics withheld. Credentials injected through existing controlled environment; no tokens/cookies/authentication data attached by new tests. Existing API spec retains trace-off; UI diagnostic capture unchanged.
+Actual [run 40391810919](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40391810919), [job 121814442223](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40391810919/job/121814442223): **success**, workflow_dispatch attempt 1 on implementation **13a5a7beeb4915cb4a5cb357cc898eb91a43ae3a**, 2026-10-26 **20:00:42–20:02:33 UTC**. Existing workflow manually dispatched with ref=release/10-billing-validation; no workflow, runner, trigger or security changes.
+
+| Hosted verification | Result |
+| --- | --- |
+| Dependency/type/security checks | npm ci, strict typecheck, **3/3 existing evidence-security checks**, Chromium/system setup PASS |
+| Controlled SUT | Exact pinned source/images; bounded readiness; ARM64 gateway/scheduler checks PASS |
+| Tests | **16/16 PASS: 15 UI + 1 API**, exact repository titles including both new cases and fourteen baseline scenarios |
+| Execution contract | expected=16; unexpected=0; flaky=0; skipped=0; globalErrors=0; configured/actual workers=1; configuredRetries=[0]; exactly one passed retry=0 result each; forbidOnly=true; resetSeedConfirmed=true |
+| Cleanup | Teardown PASS; public log confirms containers, networks and volumes absent |
+| Scan/upload | Summary clean; HTML sensitive-or-uninspectable/withheld; green diagnostic metadata clean; only controlled-results uploaded; raw HTML/failure diagnostic upload steps skipped |
+
+Downloaded [controlled-results artifact 12682522563](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40391810919/artifacts/12682522563): **1,169 ZIP bytes**, created 2026-10-26T20:02:30Z, expires 2026-11-09T20:02:29Z (14 days). Archive contains exactly **results.json** and **scan.json**; no raw report, console, credentials or authentication payload. Extracted bytes independently scan clean; exact sixteen test titles/statuses/retries and lifecycle flags were asserted from downloaded evidence, not inferred from a green badge.
+
+ZIP SHA256 **e925dcd6bbf2b0e69eb20ee7bc918627ecde164a1c1fed9e8212687d52d378cb**, independently equal to GitHub digest. results.json SHA256 **457fdfbc9c1d8693a5c128c848a42715c47bd7bbbf75b4aebb8345b96506dbb7** matches the scan manifest and deterministic final local summary. Manifest also hashes clean staged green diagnostic metadata, which was not uploaded under the failure-only condition.
+
+Downloaded/audited **23 public log files** against injected credential values/encodings and JWT/bearer/header/cookie/token patterns: no injected credential or unmasked authentication material found. GitHub checkout's masked-only Basic authentication placeholder was recognized as already masked during independent audit; no upload scanner policy changed. Logs confirm compact counts, withholding and cleanup. Inspection/download scaffolding remains ignored under .sut/; no raw evidence is committed. Local database counts support the non-purchase check; no additional hosted database/transaction audit is claimed.
+
+A final evidence-only commit changes this package, not the tested executable/workflow tree. The PR event can start a subsequent run after creation; it is not represented here as already completed. No new failure-injection experiment was needed: unchanged security checks and Release 8's preserved failure-withholding evidence remain applicable.
+
+Existing public boundary remains: full local HTML/raw output private; only compact allowlisted results or fully inspectable clean candidates may upload; raw packed/sensitive HTML/diagnostics withheld. Credentials injected through existing controlled environment; no tokens/cookies/authentication data attached by new tests. Existing API spec retains trace-off; UI diagnostic capture unchanged.
 
 ## 12. Risks/limitations
 
@@ -124,4 +143,6 @@ First compare the initial mandatory-login hypothesis with guest evidence and the
 
 ## 15. Release status
 
-Discovery and proposal complete; two UI scenarios implemented without changing the fourteen-scenario baseline. Guest exception explicitly narrows the original hypothesis. REQ-CHECKOUT-001 remains Proposed. Strict typecheck PASS; isolated scenarios 1/1 each; impacted 11/11; full 16/16; three evidence-security checks PASS; unchanged one worker/zero retries/forbid-only, reset/seed and clean teardown verified. Purchase counts remain seeded 200/200 and no purchase-capable test action was added. Hosted CI/security evidence and open-PR delivery are next. Final delivery: commit, push and create an OPEN PR against main, then stop. No merge or Release 11 work.
+Discovery and proposal complete; two UI scenarios implemented without changing the fourteen baseline scenario bodies/assertions. Guest exception explicitly narrows the original hypothesis. REQ-CHECKOUT-001 remains Proposed. Strict typecheck PASS; isolated scenarios 1/1 each; impacted 11/11; full local and hosted **16/16 (15 UI + 1 API)**; three evidence-security checks PASS; unchanged one worker/zero retries/forbid-only, reset/seed and clean teardown verified. Purchase counts remain seeded 200/200 and no purchase-capable test action was added. Public artifact/log scans, hashes and raw HTML withholding independently verified. No remaining implementation/validation blocker; guest exception and normal-path UI coverage limits remain explicit.
+
+Delivery: base main **5e4547bb03bf091e0bc54d88bc168e040d1acfe6**; branch **release/10-billing-validation**; implementation **13a5a7beeb4915cb4a5cb357cc898eb91a43ae3a**, test: add billing authentication boundary coverage. Final documentation-only evidence commit follows hosted verification. PR title **test: add Release 10 billing validation**, target main, open/not draft. PR creation is the final delivery action after evidence commit/push; returned URL belongs in the handoff. No merge or Release 11 work.
