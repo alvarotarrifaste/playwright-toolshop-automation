@@ -1,229 +1,140 @@
 # Playwright Toolshop Automation
 
-A Playwright + TypeScript automation project targeting [Practice Software Testing / Toolshop](https://practicesoftwaretesting.com). Built as a hands-on QA automation engineering and portfolio project.
+A QA automation portfolio project covering the Toolshop shopping journey with Playwright and strict TypeScript. UI and API tests run against a pinned Docker environment with deterministic reset/seed, giving local development and GitHub Actions the same controlled execution model.
 
-## Current scope and status
+## Solution Overview
 
-Seventeen independent scenarios are implemented: one Release 8 API authorization pilot and sixteen UI scenarios, including Release 10 identity/billing progression and one Release 11 authenticated cash-on-delivery purchase. UI coverage includes the original seven Authentication/Product Discovery tests, anonymous and authenticated Release 5 Add to Cart paths, two Release 6 Cart Maintenance paths, and two Release 7 category-filter paths. All eleven pre-Release 7 scenarios retain their assertions. See the [Release 7 Package](docs/release-07-summary.md) for category selection/clearing, search interaction and requirement-review boundaries. See the [Release 6 Package](docs/release-06-summary.md) for quantity-update/removal evidence and the separate post-merge human approval/closure record. See the [Release 5 Package](docs/release-05-summary.md) for clearly separated original PR #8 and post-merge change-request evidence; [Release 1 history](docs/release-01-validation.md) records the earlier public-host account investigation.
+- Playwright Test for browser and request-level automation.
+- Domain-organized UI/API tests and focused Page Objects.
+- Pinned Toolshop 2.5 source and image digests, managed through one TypeScript lifecycle script.
+- Independent scenarios, freshly seeded state before each controlled invocation.
+- GitHub Actions full regression with scanned, sanitized public evidence and verified teardown.
 
-Authentication:
+## Current Coverage
 
-- Successful login: redirects to `/account` and displays `My account`.
-- Rejected login with an incorrect password: displays `Invalid email or password`.
-- Logout: signs out through the user dropdown and displays `Sign in`.
-- Unauthenticated account access: opening `/account` redirects to login.
+**17 independent scenarios: 16 UI + 1 API**, running through the Chromium project.
 
-Product Discovery:
+| Domain | Coverage | Scenarios |
+| --- | --- | --- |
+| Authentication | Successful/invalid login, logout, protected account route | 4 UI |
+| Catalog | Matching/empty search, product details, category selection/clearing and search reset | 5 UI |
+| Cart | Anonymous/authenticated add, saved quantity update, selected-item removal | 4 UI |
+| Checkout | Anonymous identity choice and authenticated billing progression | 2 UI |
+| Purchase | Authenticated COD order, confirmation, cart clearing, persisted invoice readback | 1 UI |
+| API authentication | Anonymous rejection and authenticated current-customer read | 1 API |
 
-- Search with matching results.
-- Search with no results.
-- Open a product from search results and validate its name and visible Add to cart button.
-- Select Pliers and verify its exact five seeded products; clear it and verify the initial nine-card page is restored.
-- Search Hammer after selecting Pliers; verify category state resets and all six seeded search results appear.
+Purchase coverage checks initial `AWAITING_FULFILLMENT` state. Settlement, shipment, fulfillment and email delivery are outside this scope. See [requirements](docs/requirements.md) and the [test catalogue](docs/test-catalogue.md) for approval states and coverage boundaries.
 
-Add to Cart:
-
-- Discover the seeded Combination Pliers, add quantity 1 and verify that Cart Review contains exactly that product and quantity, both anonymously and after an independent UI login with the controlled seeded positive customer.
-
-Cart Maintenance:
-
-- Change seeded Combination Pliers quantity from 1 to 2; verify saved product/quantity and recalculated line/cart totals after reload.
-- Remove Combination Pliers from a two-item cart; verify exactly Pliers quantity 1 remains with recalculated totals after reload.
-- Both maintenance paths use fresh anonymous contexts; empty-cart messaging, repeated adds, discounts and authenticated maintenance remain outside this focused scope.
-
-The tests use `LoginPage`, `CatalogPage`, `ProductDetailsPage`, `CartPage` and `CheckoutPage` Page Objects for interactions and locators, with assertions in the test files. Chromium is the only enabled browser project.
-
-## Release 1 traceable baseline
-
-- [Requirements and evidence](docs/requirements.md): approval status is separate from evidence; existing tests do not establish official intent.
-- [Test catalogue and mapping](docs/test-catalogue.md): seventeen implemented scenarios (16 UI + 1 API), prerequisites and coverage gaps; original seven and anonymous cart coverage preserved.
-- [ADR-001: preserve current architecture](docs/adr-001-preserve-baseline.md).
-- [Release 1 validation evidence](docs/release-01-validation.md).
-
-Release 1 changes documentation only. Authentication approval follows leadership review; logout, protected-route intent and Product Discovery decisions remain pending. Account-locking requirements are approved with implementation deferred. Repeated incorrect-password runs may lock shared accounts; no separate negative-test account is required in this release.
-
-The SDTE prepares the branch, local evidence and PR. Álvaro is the human merge gate. Release 2 introduces a controlled Toolshop environment; GitHub Actions is deferred to Release 3. The earlier CI proposal in PR #3 is unmerged and is not a prerequisite for this branch. Every release must commit its Release Package in `docs/`.
-
-## Tech stack
-
-- Playwright Test
-- TypeScript
-- Node.js and npm
-- dotenv for local environment variables
-
-## Project structure
+## Architecture
 
 ```text
-pages/
-  LoginPage.ts          # Login and logout locators/actions
-  CatalogPage.ts        # Catalog search, category selection/clearing and product navigation
-  ProductDetailsPage.ts # Product detail locators
-  CartPage.ts           # Cart navigation, quantity/removal/proceed actions and cart-value locators
-  CheckoutPage.ts       # Scoped checkout identity and billing controls
 tests/
-  login.spec.ts         # Four Authentication UI tests
-  product-discovery.spec.ts # Three original Product Discovery UI tests
-  category-filtering.spec.ts # Two category selection/clear/search-reset scenarios
-  cart.spec.ts          # Anonymous and authenticated Add to Cart UI regression
-  cart-maintenance.spec.ts # Quantity update and selected-product removal
-  checkout-billing.spec.ts # Anonymous identity prompt and authenticated billing continuation
-  purchase-completion.spec.ts # One authenticated COD order, cart clear and invoice readback
-playwright.config.ts   # Browser, base URL, reporting and environment loading
-package.json           # Project dependencies
-package-lock.json      # Locked dependency versions
-.env.example           # Credential template without real values
-.env                   # Local credentials; ignored by Git
-.gitignore             # Excludes credentials, dependencies and artifacts
-README.md              # Setup, execution and project scope
+  ui/
+    authentication/authentication.spec.ts
+    catalog/{search,filtering}.spec.ts
+    cart/{add-to-cart,cart-maintenance}.spec.ts
+    checkout/{identity-billing,purchase}.spec.ts
+  api/
+    authentication/authorization.spec.ts
+pages/
+  authentication/LoginPage.ts
+  catalog/{CatalogPage,ProductDetailsPage}.ts
+  cart/CartPage.ts
+  checkout/CheckoutPage.ts
+scripts/
+  toolshop.ts
+  ci-evidence.ts
+  ci-evidence.test.ts
+environment/toolshop.lock.json
+docs/
+.github/workflows/playwright.yml
+playwright.config.ts
 ```
 
-Local generated directories include `node_modules/` (dependencies), `playwright-report/` (HTML reports), and `test-results/` (execution artifacts). They are ignored by Git.
+Tests own setup, assertions and expected values. Page Objects expose concrete locators and actions. `scripts/` owns controlled lifecycle and evidence handling; `environment/` pins the SUT. `docs/` holds requirements, mappings, decisions and release evidence. The workflow orchestrates CI using the same controlled runner.
 
-## Setup
+## Test Organization
 
-The controlled environment below is the reference target. The public deployment is for optional manual/exploratory comparison only; a public-host pass is not controlled-environment evidence.
+Folders separate execution layers and functional domains. Each test has native Playwright tags:
 
-Use Node.js 22 with npm for the controlled environment and CI. Run commands from the repository root.
+| Category | Convention |
+| --- | --- |
+| Layer | Exactly one of `@ui`, `@api` |
+| Primary domain | Exactly one of `@auth`, `@catalog`, `@cart`, `@checkout` |
+| Regression | All 17 scenarios have `@regression` |
+| Smoke | Five critical paths also have `@smoke`: UI login, matching search, anonymous add-to-cart, COD purchase and API authorization |
 
-1. Install dependencies:
+Purchase belongs to checkout; API authorization belongs to authentication. Tags describe execution selection and do not confer requirement approval or priority. Full regression is authoritative.
 
-   ```sh
-   npm install
-   ```
+## Controlled Test Environment
 
-2. Install Chromium for the installed Playwright version:
+The [SUT lock](environment/toolshop.lock.json) fixes Toolshop 2.5 source and Docker image digests. The helper checks bounded readiness, resets/seeds before every test invocation and injects separate positive/negative customer credentials from ignored environment configuration.
 
-   ```sh
-   npx playwright install chromium
-   ```
+Local endpoints are UI `http://localhost:4200` and API `http://localhost:8091`. State is disposable: reset restores seed data, counters, queues and stock; teardown removes controlled containers, networks and volumes. Purchase jobs remain queued; tests start no queue workers or scheduler. Do not overlap controlled runs, manual sessions or resets.
 
-3. For optional direct/manual execution, copy `.env.example` to `.env`. In Windows PowerShell:
+Prerequisites: Node.js 22, npm, Git, Docker Engine using Linux containers and Compose v2. Ports 4200/8091 must be available. The pinned ARM64 gateway needs ARM64 emulation on AMD64 hosts. See [environment architecture](docs/adr-002-controlled-toolshop.md) for details.
 
-   ```powershell
-   Copy-Item .env.example .env
-   ```
+## Running the Project
 
-4. For direct execution, set `BASE_URL`, positive credentials and a separate negative-test customer in `.env`. Do not reuse public accounts for the controlled run:
-
-   ```dotenv
-   BASE_URL=http://localhost:4200
-   TEST_USER_EMAIL=
-   TEST_USER_PASSWORD=
-   TEST_NEGATIVE_USER_EMAIL=
-   ```
-
-dotenv loads `.env` without overriding externally supplied environment variables. Credential-dependent tests reject missing, empty or whitespace-only values with an explicit error; the original password is used unchanged. The unauthenticated-access test does not require credentials.
-
-The public practice environment has been observed to remove accounts over time. If valid login starts failing, confirm the account still exists before changing the tests.
-
-## Controlled environment
-
-The environment helper is TypeScript: `scripts/toolshop.ts`. Existing npm lifecycle commands execute it through the development dependency `tsx`. Run `npm run typecheck` to check the helper, tests, Page Objects and Playwright configuration with strict TypeScript (`tsc --noEmit`); CI runs that check after `npm ci`. No compiled JavaScript is generated or committed. See the [TS migration hotfix record](docs/ts-migration-hotfix-summary.md).
-
-Prerequisites: Node.js 22 with npm, Git, and Docker Engine with **Linux containers** and Docker Compose v2 or newer running (Docker Desktop with WSL2 on Windows). Allow the initial image download; ports `4200` and `8091` must be free. API/UI/database use `linux/amd64`; the pinned official gateway is `linux/arm64` and requires ARM64 emulation on AMD64 hosts (validated with Docker Desktop).
-
-Official Toolshop **tag `2.5`**, commit `9e7736c3841ec2bbb9a6822c9e6602353b7b9a65`, is fetched into ignored `.sut/upstream/`. UI/API release images and web/database images are fixed by digest in [the SUT lock](environment/toolshop.lock.json). No application source is committed here.
+From the repository root:
 
 ```sh
 npm ci
 npx playwright install chromium
 npm run sut:provision
 npm run sut:up
-npm run sut:reset
 npm run test:controlled
 npm run sut:down
 ```
 
-UI: `http://localhost:4200`. API: `http://localhost:8091`. `sut:up` provisions if necessary and checks bounded API/frontend readiness; `sut:ready` checks again. `sut:reset` destroys and reseeds **this controlled database**, restoring accounts, login counters and catalog, and clears application cache. Do not run resets while using the environment manually.
+Start the environment once, run the required subsets, then tear it down:
 
-Provisioning generates ignored `.env.controlled` from the pinned official seeder without printing its values. Required variables are `TEST_USER_EMAIL`, `TEST_USER_PASSWORD`, and `TEST_NEGATIVE_USER_EMAIL`; positive tests use the first seeded customer and the incorrect-password test uses the second. No passwords are embedded in tests or documentation. Existing `.env.controlled` is preserved; external environment variables take precedence.
+| Command | Selection |
+| --- | --- |
+| `npm run test:controlled` | All 17 scenarios |
+| `npm run test:ui` | 16 UI scenarios |
+| `npm run test:api` | 1 API scenario |
+| `npm run test:smoke` | 5 critical paths |
+| `npm run test:auth` | 4 UI + 1 API authentication scenarios |
+| `npm run test:catalog` | 5 catalog scenarios |
+| `npm run test:cart` | 4 cart scenarios |
+| `npm run test:checkout` | 3 checkout/purchase scenarios |
 
-`test:controlled` resets/seeds before every run, then executes all seventeen scenarios (16 UI + 1 API) through the Chromium project with one worker and zero retries. It does not run a tag-filtered subset. To repeat Authentication only after a restart, use `npm run test:controlled -- tests/login.spec.ts`; both Add to Cart paths use `npm run test:controlled -- tests/cart.spec.ts`. Run all cart coverage with `npm run test:controlled -- tests/cart.spec.ts tests/cart-maintenance.spec.ts`. Product Discovery/category regression uses `npm run test:controlled -- tests/product-discovery.spec.ts tests/category-filtering.spec.ts`. Reports remain in ignored `playwright-report/`. `sut:down` removes the controlled containers, network and volumes; it retains images, the external checkout and local credential file for reuse.
+Every subset delegates to `test:controlled` using Playwright `--grep`. Startup is explicit (`sut:up`); every invocation checks readiness and resets/seeds. The helper enforces Chromium, one worker, zero retries and forbid-only. Those command-line settings override the general defaults in `playwright.config.ts`, including direct-CI retries. CI uses this same helper through the evidence wrapper.
 
-On startup/readiness failure, the command exits nonzero and prints service status plus a focused logs command; it does not start tests. If a lifecycle command is forcibly interrupted, confirm no operation is running before removing the empty `.sut/operation.lock` directory. Lifecycle commands serialize access to this one local environment; direct Playwright/manual sessions must not overlap resets.
-
-See [ADR-002](docs/adr-002-controlled-toolshop.md) and the [persistent Release Package](docs/release-02-summary.md) for rationale, evidence and remaining prerequisites.
-
-## GitHub Actions baseline
-
-The [controlled Chromium workflow](.github/workflows/playwright.yml) runs on pull requests targeting `main`, pushes to `main`, and manual dispatch (after the workflow exists on `main`). It uses Ubuntu 24.04 AMD64, Node 22, `npm ci`, and `npx playwright install --with-deps chromium`. The pinned ARM64 gateway runs through Docker's QEMU setup; API/UI/database run natively on AMD64. The SUT version and image digests are unchanged from Release 2.
-
-CI runs `sut:provision`, `sut:up`, `sut:ready` and `npx tsx scripts/ci-evidence.ts run`. The wrapper invokes the unchanged controlled helper, resets/seeds and runs all seventeen scenarios (16 UI + 1 API), with one worker, zero retries and `--forbid-only`. It retains raw console output privately and preserves the test exit code. It generates/injects the ignored controlled accounts; no public-host account secrets are required. Teardown runs with `always()` after dependency installation and checks that project containers, networks and volumes are absent.
-
-Download `controlled-results` for compact test outcomes and the artifact scan manifest. Built-in Playwright JSON is the private input; only allowlisted result fields enter public evidence. Every candidate artifact is scanned, then exact approved bytes are staged and re-scanned before upload. Raw HTML/failure diagnostics are uploaded only when fully inspectable and clean; native embedded reports, archives, screenshots and sensitive text are withheld. Workflow logs and the job summary record withholding without printing matched values. Retention is 14 days. See the [Release 8 Package](docs/release-08-summary.md) for this bounded security decision and validation; Release 3/4 packages remain historical CI/diagnostic evidence.
-
-## Run tests locally
-
-Run the full Chromium suite:
+Additional commands:
 
 ```sh
-npx playwright test --project=chromium
-```
-
-Run Authentication only:
-
-```sh
-npx playwright test tests/login.spec.ts --project=chromium
-```
-
-Run Product Discovery only:
-
-```sh
-npx playwright test tests/product-discovery.spec.ts --project=chromium
-```
-
-If PowerShell blocks `npx.ps1`, use:
-
-```powershell
-npx.cmd playwright test tests/login.spec.ts --project=chromium
-```
-
-The same `npx.cmd` alternative can be used for browser installation and report viewing on Windows.
-
-## Reporting
-
-The configured HTML reporter writes results to `playwright-report/`. Open the latest report with:
-
-```sh
+npm run typecheck
+npx playwright test --list --project=chromium
+npm run test:controlled -- tests/ui/checkout/purchase.spec.ts
+npx tsx --test scripts/ci-evidence.test.ts
 npx playwright show-report
 ```
 
-The report provides test outcomes, timings and failure details. Playwright records traces with `retain-on-failure` and screenshots with `only-on-failure`, including a failed first attempt. Passing tests discard their trace recordings. Video remains off to avoid adding capture/storage cost alongside trace snapshots and screenshots. Controlled execution continues to enforce one worker, zero retries and `--forbid-only`, overriding the legacy direct-CI retry default in the config.
+On Windows, use `npm.cmd` / `npx.cmd` if PowerShell blocks the `.ps1` launchers. Provisioning generates ignored `.env.controlled`; externally injected credentials take precedence. Optional direct Playwright execution uses `.env` (see [.env.example](.env.example)) and bypasses the controlled reset/seed contract.
 
-For failed public CI runs, inspect the sanitized `controlled-results` artifact first: failures remain failures even when raw diagnostics are withheld. Full local HTML, traces, screenshots and raw console/JSON remain available in ignored local directories. Open local traces with `npx playwright show-trace <path/to/trace.zip>`. These local files can contain injected credentials and request/session data and must not be shared without review. Public uploads are restricted to scanner-approved staging paths; no encryption or reporting dependency is added.
+## CI/CD
 
-## Security and test data
+[GitHub Actions](.github/workflows/playwright.yml) runs on PRs targeting `main`, pushes to `main`, and manual dispatch. It installs locked dependencies, runs strict typecheck and three evidence security checks, starts the pinned environment and executes all 17 scenarios. Teardown runs even after test failure and verifies resource removal.
 
-- Never commit `.env`; it is excluded by `.gitignore`.
-- Keep `.env.example` limited to placeholders, with no working credentials.
-- Valid credentials come from environment variables. The rejected-login test uses a fixed, non-secret incorrect password.
-- Reports, error snapshots and traces may contain sensitive test data. They are ignored by Git and must be reviewed before sharing.
+The evidence wrapper preserves test failures while keeping raw output private. The scanner stages and re-scans approved bytes before publishing `controlled-results` (14-day retention). HTML and failure diagnostics are published only when inspectable and clean; opaque or sensitive content is withheld. Local reports/traces can contain credentials or session data and require review before sharing. API tracing remains disabled in the authorization spec.
 
-## Planned evolution — not implemented
+## Engineering Principles
 
-- Further cart coverage (repeated adds, quantity limits and other deferred variants)
-- Checkout/payment variants beyond the focused Release 10/11 paths
-- API automation beyond the Release 8 authorization pilot
-- Git/GitHub workflow evolution
-- Jenkins CI/CD
-- Reporting and troubleshooting improvements
+- Strict TypeScript throughout tests, Page Objects and lifecycle scripts.
+- Assertions and readable deterministic test oracles stay in tests.
+- Independent sessions and test-owned resources; reset/teardown owns disposable state.
+- Concrete Page Objects composed with Playwright `Page` and `Locator`.
+- Abstractions added only for demonstrated needs.
+- Credentials and generated identities stay outside committed source and public evidence.
 
-## Release 8 API pilot
+## Project Evolution
 
-Current controlled coverage is **17 scenarios: 16 Chromium UI + 1 API**; Release 8 introduced its first API scenario. [Release 8 Package](docs/release-08-summary.md) records the proposed requirement, pinned discovery and validation evidence. `tests/api-authorization.spec.ts` directly validates `GET /users/me`: anonymous access is rejected, then a fresh login permits access to the intended seeded customer's profile. No browser fixture or reusable API framework is introduced.
+| Phase | Focus | Status |
+| --- | --- | --- |
+| Phase 1 | Foundation, controlled execution, secure CI and functional purchase flow (R1–R11) | Complete |
+| Phase 2 | Portfolio architecture and expanded UI/API coverage (R12 onward) | In progress |
+| Phase 3 | Reliability, debugging and engineering ownership | Planned |
 
-Run it independently with `npm run test:controlled -- tests/api-authorization.spec.ts`. The normal `npm run test:controlled` and existing GitHub Actions job discover all seventeen scenarios through the same Chromium project, one worker, zero retries and `--forbid-only`. API tracing is disabled only in this spec because request traces may capture authentication secrets; existing UI failure diagnostics remain unchanged. Use injected controlled credentials; do not enable API request debug logging or attach raw login/token/profile data.
-
-To exercise the public reporting boundary locally, use `npx tsx scripts/ci-evidence.ts run [optional spec]`, followed by `npx tsx scripts/ci-evidence.ts scan`. The wrapper writes raw output under ignored `.sut/`; the scan stages only clean candidates under `.sut/ci-public/`. Local `npm run test:controlled` retains the existing HTML reporting behavior.
-
-## Release 10 Billing Validation
-
-[Release 10 Package](docs/release-10-summary.md) preserves the original proposal and later explicit human approval of REQ-CHECKOUT-001 with T-CHECKOUT-001/002. Normal checkout presents an identity-choice step **before Billing Address**: anonymous sessions see the default login form plus guest option; an already signed-in customer is acknowledged and can continue to billing without another login prompt. Guest checkout can reach billing without account login, so this is not a universal mandatory-login or backend payment-security claim. Those two R10 UI tests create their own session/cart and stop at the identity prompt or Billing Address; purchase completion is the separate R11 case below.
-
-Run independently with `npm run test:controlled -- tests/checkout-billing.spec.ts --grep "anonymous checkout presents"` or `--grep "authenticated checkout continues"`. Impacted regression: `npm run test:controlled -- tests/login.spec.ts tests/cart.spec.ts tests/cart-maintenance.spec.ts tests/api-authorization.spec.ts tests/checkout-billing.spec.ts`. Normal controlled execution/CI includes all 17 scenarios with one worker, zero retries, reset/seed, forbid-only and the unchanged sanitized artifact policy.
-
-## Release 11 Purchase Completion
-
-[Release 11 Package](docs/release-11-summary.md) records Proposed REQ-PURCHASE-001 / T-PURCHASE-001. One authenticated seeded customer uses synthetic local-Faker billing (US/00000/house 1) and Cash on Delivery, requiring no payment secrets. This pinned UI first validates payment, then a second Confirm places exactly one order. The test requires matching-reference UI confirmation, owned-cart deletion/client clearing and independent authenticated invoice readback with correct line/quantity/total/COD/initial status. No token extraction or custom fixture.
-
-Run `npm run test:controlled -- tests/purchase-completion.spec.ts`; impacted regression adds `tests/cart.spec.ts tests/cart-maintenance.spec.ts tests/checkout-billing.spec.ts`. Purchase rows and inventory/email jobs persist until the existing reset/seed or disposable teardown. Controlled queue workers/scheduler are not started; queued inventory and email must not be described as already delivered/completed. Use only the controlled environment, and do not overlap workers/manual runs with reset. Public evidence remains sanitized/scanned; full local diagnostics may contain auth data. See the package for async execution/recovery evidence and limits.
+[Release 12 architecture package](docs/release-12-summary.md) documents organization, preserved behavior and validation. [Release 11](docs/release-11-summary.md#16-post-merge-human-closure) records human-approved purchase closure. Historical investigations and release evidence remain under `docs/`.
