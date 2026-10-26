@@ -2,7 +2,7 @@
 
 Thirteen implemented UI tests are mapped below. Release 7 adds category selection/clearing and search resetting category state; its new requirement is proposed and existing search requirement remains Requires confirmation. Release 6 adds two independent anonymous cart-maintenance scenarios; their requirements are approved by the post-merge human leadership decision (L6). The original seven names/assertions and T-CART-001 anonymous implementation are preserved. Release 5 PR #8 introduced T-CART-001; its human-approved post-merge change request adds T-CART-002 authenticated coverage. IDs are documentation identifiers. Release 2 supplies a controlled target, reset before execution and separate authentication customers. Requirement status comes from [the requirements catalogue](requirements.md), independently of the original and follow-up [Release 5 execution evidence](release-05-summary.md).
 
-Priority and smoke/regression assignments in Phase 1 were proposals. **Not yet agreed**: no operational suite tags or approved priority labels are inferred. All thirteen run through the existing controlled Chromium command. Both cart scenarios are functional regression for the Add to Cart happy path in the two supported session states; this does not introduce a tag-filtered suite.
+Priority and smoke/regression assignments in Phase 1 were proposals. **Not yet agreed**: no operational suite tags or approved priority labels are inferred. All thirteen UI tests and the Release 8 API scenario run through the existing controlled Chromium command (14 total). Both cart scenarios are functional regression for the Add to Cart happy path in the two supported session states; this does not introduce a tag-filtered suite.
 
 ## Authentication
 
@@ -27,7 +27,7 @@ Source for all three: [tests/product-discovery.spec.ts](../tests/product-discove
 
 ## Deferred automation
 
-REQ-AUTH-005 is approved but has **no implemented automated test**. A future locking scenario needs explicit account isolation, verified counter semantics and reset/unlock lifecycle before implementation. It is not part of this thirteen-case suite; the two cart cases validate session variants, not account locking. API checks, discovery/filter scenarios beyond the focused Release 7 cases and cart operations beyond the focused Release 5/6 cases remain deferred.
+REQ-AUTH-005 is approved but has **no implemented automated test**. A future locking scenario needs explicit account isolation, verified counter semantics and reset/unlock lifecycle before implementation. It is not part of the controlled suite; the two cart cases validate session variants, not account locking. API checks beyond the focused Release 8 pilot, discovery/filter scenarios beyond the focused Release 7 cases and cart operations beyond the focused Release 5/6 cases remain deferred.
 
 ## Add to Cart — Release 5
 
@@ -61,3 +61,13 @@ Source: [tests/category-filtering.spec.ts](../tests/category-filtering.spec.ts).
 | T-CATALOG-005 | REQ-CATALOG-002 — Requires confirmation, existing meaning unchanged | `visitor searches after category filtering and sees matching products with the category cleared` | Own fresh anonymous context; controlled reset/seed/readiness; independently select Pliers and assert its exact five products/checked state. | Search Hammer completes; Pliers unchecked; zero selected category inputs; exact 6 products found for Hammer caption and complete six-name seeded result set. | Detect stale category constraints and inconsistent UI state hiding cross-category results. Partial AC4 coverage: category reset only, not every filter or query boundary/matching algorithm. |
 
 Each test constructs only CatalogPage; category actions/locators live there and all assertions remain in tests. The existing eleven scenarios and their spec files/assertions are unchanged. No fixtures, generic filter framework/components, API helpers, data framework or parameterization infrastructure. Fixed expected identity arrays are local test oracles, not a data framework. Exact cardinality plus each expected card detects incorrect sets without requiring incidental sort order. Full sets and execution results are persisted in release-07-summary.md; no hierarchy, multi-select, brand/price combination, pagination traversal or persistence assertion is claimed.
+
+## API Authorization Pilot — Release 8
+
+Source: [tests/api-authorization.spec.ts](../tests/api-authorization.spec.ts). Layer: **API/service**, one independent scenario; no browser fixture or UI login. Fourteen total controlled scenarios: **13 UI + 1 API**. The existing Chromium project discovers both; no tag filtering, second pipeline or project is introduced. Prior UI scenarios remain unchanged.
+
+| Test ID | Requirement/status | Scenario | Preconditions | Oracle | Risk/boundaries |
+| --- | --- | --- | --- | --- | --- |
+| T-API-AUTH-001 | REQ-API-AUTH-001 — Proposed, human approval pending | `T-API-AUTH-001: current customer resource rejects anonymous access and returns the authenticated customer` | Existing controlled reset/seed; fresh isolated request fixture; injected positive customer email/password; own POST /users/login, no inherited storage or prior test | GET /users/me without credentials: 401 and exact error-only JSON. Login: 200, bearer type, nonempty token. Same GET with bearer token: 200; email matches injected customer, pinned positive first/last name, nonempty generated ID. Sensitive identity/token comparisons assert booleans. | Detect anonymous disclosure/wrong customer resolution. No role/IDOR matrix, invalid-token lifecycle, profile mutation or broad schema contract. |
+
+Pinned documentation/source, controlled observation and actual execution are distinguished in [Release 8](release-08-summary.md). Trace is off only for this spec to prevent API credentials/tokens entering trace attachments; request fixture owns disposal, no saved auth state or raw response attachments. All UI diagnostics and controlled lifecycle flags remain unchanged. Other API checks remain deferred.

@@ -20,7 +20,10 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  // Full diagnostics stay local. The CI wrapper publishes only scanned evidence.
+  reporter: process.env.TOOLSHOP_CI_EVIDENCE === '1'
+    ? [['html'], ['json', { outputFile: '.sut/ci-results.json' }]]
+    : 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     // Base URL to use in actions like `await page.goto('')`.
