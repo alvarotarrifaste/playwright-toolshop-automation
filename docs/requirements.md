@@ -84,6 +84,8 @@ Shared preconditions: exact controlled Toolshop 2.5/SHA/image pins, bounded read
 
 ## API Authorization Pilot — Release 8
 
+<a name="api-authorization-pilot--release-8-proposal"></a>
+
 **REQ-API-AUTH-001 — Approved, explicit post-merge human leadership decision (L8).** A request without authentication to the current-customer resource `GET /users/me` must receive HTTP 401 with an authorization-error JSON body and no customer identity. After successful `POST /users/login` using the injected seeded positive customer credentials, the same resource must return HTTP 200 and that customer's identity. Recommended test: **T-API-AUTH-001**, one scenario exercising both sides of the boundary.
 
 Approval source **L8**: explicit human leadership approval supplied for Release 9 Step 0 after merged PR #12, main merge commit `fbb1a9df6f0718d01af86d0e312c84a4c005a062` and post-merge run `40375008221`. See the separate [post-merge human closure](release-08-summary.md#16-post-merge-human-closure). The original Release 8 status was **Proposed, requires human approval**; the original proposal, pre-merge execution and pending-approval history remain in that package. Approval is effective only after human review; documentation, source and passing tests did not confer it. No requirement scope or other approval status changes.

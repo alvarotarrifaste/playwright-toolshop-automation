@@ -79,7 +79,7 @@ Reopen the fixture decision if approved future scenarios introduce repeated, ind
 
 Separate Step 0 commit (three files):
 
-- docs/requirements.md: current Approved API requirement with explicit L8 approval and original Proposed provenance.
+- docs/requirements.md: current Approved API requirement with explicit L8 approval and original Proposed provenance. A follow-up documentation-only anchor preserves the original Release 8 proposal-source link after the heading/status reconciliation.
 - docs/test-catalogue.md: T-API-AUTH-001 maps to approved requirement; behavior and test ID unchanged.
 - docs/release-08-summary.md: append-only post-merge human closure; original sections 1–15 preserved.
 
@@ -113,7 +113,25 @@ Local candidate scan: compact summary **clean**; raw HTML **sensitive-or-uninspe
 
 ### Release 9 hosted execution
 
-Pending decision commit/push and manual dispatch of the unchanged existing workflow. No second pipeline, temporary trigger, fixture or security-policy change is required. This run is additional preservation assurance for a documentation-only decision, not fixture implementation validation.
+Actual [run 40380358480](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40380358480), [job 121774630812](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40380358480/job/121774630812): **success**, workflow_dispatch attempt 1 on decision commit **86b402df61f81c419ac2c3fe4e4ee126ce4701ea**, 2026-10-26T18:44:10Z–2026-10-26T18:46:02Z. The existing workflow was manually dispatched without any trigger, pipeline, runner, fixture or security-policy change. This is additional preservation assurance for a documentation-only decision, not fixture implementation validation.
+
+| Hosted check | Result/evidence |
+| --- | --- |
+| Install/typecheck/security | npm ci, strict typecheck, **3/3 existing security checks**, Chromium/system dependencies: PASS |
+| Controlled startup | Locked tag/SHA/images, bounded readiness, ARM64 gateway and scheduler exclusion: PASS |
+| Functional baseline | **14/14 PASS: 13 UI + 1 API**; exact repository titles; expected=14, unexpected=0, flaky=0, skipped=0, globalErrors=0 |
+| Execution contract | Configured/actual workers=1; configuredRetries=[0]; one passed retry=0 result per test; forbidOnly=true; resetSeedConfirmed=true |
+| Teardown | PASS; public log confirms controlled containers, networks and volumes absent |
+| Candidate scan | Compact summary clean; HTML sensitive-or-uninspectable/withheld; green diagnostic metadata clean |
+| Public uploads | Exactly one controlled-results artifact; HTML upload skipped by gate; failure diagnostics skipped on green |
+
+Downloaded [controlled-results artifact 12678332733](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40380358480/artifacts/12678332733): **1,105 ZIP bytes**, created 2026-10-26T18:46:00Z, expires 2026-11-09T18:45:59Z (14 days). Archive contains exactly **results.json** and **scan.json**; no raw report, console, authentication payload or credentials file. Both extracted files independently pass the unchanged scanner. Every title/result/worker/retry/reset flag above was checked from the downloaded summary, not inferred from the green job status.
+
+ZIP SHA256 **28e4e5be21c026d5e6cb050e002b06bf428f133b6189832e8a9801c566ed903a**, independently equal to GitHub's digest. results.json SHA256 **6dcd52a54e788b4a3a373710dd628bafcebc11bf8c6e13a274d6d1c728b8d5e5** matches the manifest and deterministic local final result. The manifest also hashes clean staged green diagnostic metadata, which is not uploaded under the failure-only condition.
+
+All **23 public log files** (aggregate and per-step) were downloaded and audited against controlled injected credential values/encodings plus JWT/bearer/header/cookie/token patterns. No injected credentials or unmasked authentication material found. GitHub checkout's already masked Basic authentication placeholder was recognized as masked-only during audit; no upload scan policy changed. Public logs show compact counts, HTML withholding and verified cleanup. Review/download scaffolding remains ignored under .sut/.
+
+No new controlled-failure experiment was needed for this docs-only decision; unchanged scanner tests and the Release 8 failure-path evidence remain applicable. A final evidence/legacy-source-anchor documentation commit changes no executable/workflow files. PR creation can trigger another run afterward; that later run is not represented here as already complete.
 
 ## 9. Risks/limitations
 
@@ -145,4 +163,6 @@ Release 8 security limits remain: full local reports may contain secrets; public
 
 ## 12. Release status
 
-**R9 decision: NOT JUSTIFIED.** The justification sprint's architectural deliverable is a no-change decision, ready for validation/human review. Step 0 Release 8 closure is separately committed. No fixture or engineering abstraction is implemented; baseline remains 14 scenarios (13 UI + 1 API). Preservation review, strict typecheck, three existing security checks and unchanged full local 14/14 regression pass; reset/seed and teardown verified. Hosted CI/security evidence and open-PR delivery are next. R9 human merge/closure remains a separate leadership decision. No Release 10 work.
+**R9 decision: NOT JUSTIFIED.** The justification sprint's architectural deliverable is a completed no-change decision, ready for human review. Step 0 Release 8 closure is separately committed. No fixture or engineering abstraction is implemented; baseline remains 14 scenarios (13 UI + 1 API). Preservation review, strict typecheck, three existing security checks and unchanged full local 14/14 regression pass; reset/seed and teardown verified. Hosted CI **14/14 PASS**, strict typecheck and security checks pass; compact artifact hashes/content, public log scan, raw HTML withholding and cleanup independently verified. No remaining implementation/validation blocker. Fixture-specific validation is not applicable because no fixture was implemented.
+
+Delivery history: base main **fbb1a9df6f0718d01af86d0e312c84a4c005a062**; branch **release/09-resource-lifecycle-fixture**; separate closure commit **c37ff97ffcc76f549fed5591591baec180dcbdb2**; decision commit **86b402df61f81c419ac2c3fe4e4ee126ce4701ea**, docs: record Release 9 fixture decision. Final documentation-only evidence/legacy-anchor commit follows hosted verification. PR title **refactor: evaluate resource lifecycle fixture**, target main, open/not draft. Create the PR only after evidence commit/push, then stop; returned URL belongs in the handoff. No fixture or other engineering work is deferred within R9's chosen scope. R9 human merge/closure remains a separate leadership decision. No Release 10 work.
