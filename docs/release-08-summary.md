@@ -70,7 +70,7 @@ Full local HTML, private JSON, console and native diagnostics remain available i
 - playwright.config.ts: opt-in built-in JSON reporter alongside local HTML.
 - .github/workflows/playwright.yml: run security checks, capture test output, scan before upload and gate each staged artifact.
 
-Existing thirteen UI specs/assertions, Page Objects (including LoginPage), lifecycle helper, reset/seed, pins, dependencies, strict TS options, execution flags and UI diagnostic capture settings have no diff from main. Only the reporter selection and justified CI reporting/upload boundary change. Unrelated pre-existing output/ and tmp/ remain untouched and unstaged.
+Existing thirteen UI scenarios/assertions, Page Objects (including LoginPage), lifecycle helper, reset/seed, pins, dependencies, strict TS options, execution flags and UI diagnostic capture settings have no diff from main. Only the reporter selection and justified CI reporting/upload boundary change. Unrelated pre-existing output/ and tmp/ remain untouched and unstaged.
 
 ## 9. Isolated API validation
 
@@ -107,7 +107,26 @@ A temporary local request-only validation spec (removed before final regressions
 
 ## 11. GitHub Actions evidence
 
-Pending implementation commit/push and hosted execution after local reporting-security validation. No Release 8 public artifact has been uploaded before the remediation.
+Actual [hosted run 40369911905](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40369911905), [job 121737563418](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40369911905/job/121737563418): **success**, workflow_dispatch attempt 1, 2026-10-26 **17:34:43–17:36:33 UTC**, implementation commit **408e832631aa131650524990e3da20946d4f5bc9** on release/08-api-authorization. Only remediated workflow content was pushed/dispatched. No Release 8 public raw report was uploaded before or after remediation.
+
+| Hosted check | Evidence |
+| --- | --- |
+| Install/typecheck/security checks | npm ci, strict typecheck, three security checks and Chromium/system dependency installation passed |
+| Controlled environment | Locked tag/SHA verified; unchanged pinned images; bounded API/UI readiness; ARM64 gateway and scheduler exclusion steps passed |
+| Controlled execution | **14/14 PASS: 13 UI + 1 API**; all exact repository titles present; expected=14, unexpected=0, flaky=0, skipped=0, globalErrors=0; one configured/actual worker; configuredRetries=[0], exactly one passed retry=0 result per test; forbidOnly=true; resetSeedConfirmed=true |
+| Cleanup | Teardown step passed; public log explicitly confirms containers, networks and volumes absent |
+| Candidate scan | Compact summary clean; HTML sensitive-or-uninspectable, withheld; green test-results metadata clean |
+| Uploads | Only **controlled-results** uploaded; raw HTML upload skipped by gate; raw diagnostics upload skipped because execution passed |
+
+### Public artifact and log verification
+
+Downloaded [controlled-results artifact 12672676476](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40369911905/artifacts/12672676476): **1,105 ZIP bytes**, created 2026-10-26T17:36:30Z, expires 2026-11-09T17:36:29Z (14 days). Archive contains exactly **results.json** and **scan.json**. No rich report, trace, screenshot, console dump, raw JSON reporter output, credentials file or auth response is included. The artifact list contains exactly one upload.
+
+ZIP SHA256 **31abd2dff0cd9a39b840f123df7dc53ec176ed46677cce4f7aeedc84877048e5** independently computed and equal to GitHub digest. results.json SHA256 **6dcd52a54e788b4a3a373710dd628bafcebc11bf8c6e13a274d6d1c728b8d5e5** matches the scan manifest (and deterministic local final summary). Both downloaded files independently pass the credential/authentication-material scan. All fourteen exact titles/results, worker/retry settings and lifecycle flags were asserted from the downloaded summary, not inferred from a green badge. The manifest also hashes clean staged green diagnostics metadata, which was not uploaded under the failure-only condition.
+
+Downloaded and audited all **23 public log files** (including aggregate/per-step logs) against injected credential values/encodings and JWT/bearer/header/cookie/token patterns. No injected credentials or unmasked authentication material found. GitHub checkout's already masked Basic authentication placeholder was recognized as masked-only during audit; no scanner upload policy was relaxed. Test output contains compact counts only, not raw failure/step data. Logs explicitly confirm HTML withholding and successful cleanup. Independent audit evidence remains ignored under .sut/release08-hosted-verification.json; no raw logs/reports are committed.
+
+This hosted run validates the green public boundary. Sensitive failure withholding was deliberately exercised locally as described in section 10; no hosted failure experiment is claimed. A final evidence-only commit changes this package, not the tested executable/workflow tree. The PR event may start another run after creation; that later run is not represented here as already complete.
 
 ## 12. Risks / limitations
 
@@ -117,7 +136,7 @@ The pre-existing local UI-report exposure remains by explicit decision; public p
 
 ## 13. Reviewer guide
 
-Review pinned sources → Proposed requirement → catalogue mapping → API scenario and trace/security handling → isolated/full/hosted evidence and report → unchanged baseline contracts. UI source is supporting evidence only.
+Review pinned sources → Proposed requirement → catalogue mapping → API scenario → reporting decision/wrapper/scan and upload gates → isolated/full/failure-path/hosted evidence → downloaded compact artifact and scan manifest → unchanged functional contracts. Confirm raw diagnostics stay local and unsafe content cannot reach any upload action or raw test console output. UI source is supporting evidence only.
 
 ## 14. Interview defense
 
@@ -134,4 +153,6 @@ Review pinned sources → Proposed requirement → catalogue mapping → API sce
 
 ## 15. Release status
 
-Discovery, proposal, focused implementation and local validation complete. Requirement remains Proposed. Human reporting decision implemented and locally verified, including controlled failure withholding. Final local results: API 1/1, authentication 4/4, full 14/14; typecheck and three security checks pass; one worker, zero retries, reset/seed, forbid-only and clean teardown confirmed. Hosted evidence and open-PR delivery are next. Deliver an open PR against main only after validation; do not merge or start Release 9.
+Discovery, proposal, focused implementation and local validation complete. Requirement remains Proposed. Human reporting decision implemented and locally verified, including controlled failure withholding. Final local results: API 1/1, authentication 4/4, full 14/14; typecheck and three security checks pass; one worker, zero retries, reset/seed, forbid-only and clean teardown confirmed. Hosted validation **14/14 PASS** and independent artifact/log verification complete: one clean compact artifact, raw HTML withheld, no injected credentials or unmasked authentication material found in public evidence/logs, cleanup verified. No remaining implementation/validation blocker. REQ-API-AUTH-001 remains Proposed; one-customer/missing-versus-valid scope and conservative scan limitations remain explicit.
+
+Git delivery: base main **6aee6ff**; branch **release/08-api-authorization**; implementation **408e832631aa131650524990e3da20946d4f5bc9**, test: add Release 8 API authorization pilot. A final documentation-only evidence commit follows hosted verification. PR title **test: add API authorization coverage**, target main, open/not draft. PR creation is the final delivery action after evidence commit/push; the returned URL belongs in the handoff. No merge or Release 9 work.
