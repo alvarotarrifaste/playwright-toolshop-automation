@@ -1,13 +1,13 @@
 import { test, expect } from '@playwright/test';
-import { CatalogPage } from '../pages/CatalogPage';
-import { ProductDetailsPage } from '../pages/ProductDetailsPage';
-import { CartPage } from '../pages/CartPage';
-import { LoginPage } from '../pages/LoginPage';
+import { CatalogPage } from '../../../pages/catalog/CatalogPage';
+import { ProductDetailsPage } from '../../../pages/catalog/ProductDetailsPage';
+import { CartPage } from '../../../pages/cart/CartPage';
+import { LoginPage } from '../../../pages/authentication/LoginPage';
 
 const TEST_USER_EMAIL = process.env.TEST_USER_EMAIL;
 const TEST_USER_PASSWORD = process.env.TEST_USER_PASSWORD;
 
-test('visitor adds a product to cart and sees the selected product and quantity', async ({ page }) => {
+test('visitor adds a product to cart and sees the selected product and quantity', { tag: ['@ui', '@cart', '@regression', '@smoke'] }, async ({ page }) => {
   const productName = 'Combination Pliers';
   const catalogPage = new CatalogPage(page);
   const productDetailsPage = new ProductDetailsPage(page);
@@ -28,7 +28,7 @@ test('visitor adds a product to cart and sees the selected product and quantity'
   await expect(cartPage.productQuantities).toHaveValue('1');
 });
 
-test('authenticated user adds a product to cart and sees the selected product and quantity', async ({ page }) => {
+test('authenticated user adds a product to cart and sees the selected product and quantity', { tag: ['@ui', '@cart', '@regression'] }, async ({ page }) => {
   if (!TEST_USER_EMAIL?.trim()) {
     throw new Error('Missing or blank required environment variable: TEST_USER_EMAIL');
   }

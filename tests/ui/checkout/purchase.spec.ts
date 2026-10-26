@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
-import { CatalogPage } from '../pages/CatalogPage';
-import { ProductDetailsPage } from '../pages/ProductDetailsPage';
-import { CartPage } from '../pages/CartPage';
-import { CheckoutPage } from '../pages/CheckoutPage';
+import { LoginPage } from '../../../pages/authentication/LoginPage';
+import { CatalogPage } from '../../../pages/catalog/CatalogPage';
+import { ProductDetailsPage } from '../../../pages/catalog/ProductDetailsPage';
+import { CartPage } from '../../../pages/cart/CartPage';
+import { CheckoutPage } from '../../../pages/checkout/CheckoutPage';
 
-test('authenticated customer completes a cash-on-delivery purchase with a persisted invoice and cleared cart', async ({ page }) => {
+test('authenticated customer completes a cash-on-delivery purchase with a persisted invoice and cleared cart', { tag: ['@ui', '@checkout', '@regression', '@smoke'] }, async ({ page }) => {
   const email = process.env.TEST_USER_EMAIL;
   const password = process.env.TEST_USER_PASSWORD;
   if (!email?.trim() || !password?.trim()) {

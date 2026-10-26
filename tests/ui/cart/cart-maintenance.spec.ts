@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { CatalogPage } from '../pages/CatalogPage';
-import { ProductDetailsPage } from '../pages/ProductDetailsPage';
-import { CartPage } from '../pages/CartPage';
+import { CatalogPage } from '../../../pages/catalog/CatalogPage';
+import { ProductDetailsPage } from '../../../pages/catalog/ProductDetailsPage';
+import { CartPage } from '../../../pages/cart/CartPage';
 
-test('visitor updates a cart quantity and sees the saved quantity and recalculated totals', async ({ page }) => {
+test('visitor updates a cart quantity and sees the saved quantity and recalculated totals', { tag: ['@ui', '@cart', '@regression'] }, async ({ page }) => {
   const productName = 'Combination Pliers';
   const catalogPage = new CatalogPage(page);
   const productDetailsPage = new ProductDetailsPage(page);
@@ -41,7 +41,7 @@ test('visitor updates a cart quantity and sees the saved quantity and recalculat
   await expect(cartPage.total).toHaveText('$28.30');
 });
 
-test('visitor removes a cart product and sees the remaining product and recalculated total', async ({ page }) => {
+test('visitor removes a cart product and sees the remaining product and recalculated total', { tag: ['@ui', '@cart', '@regression'] }, async ({ page }) => {
   const removedProduct = 'Combination Pliers';
   const remainingProduct = 'Pliers';
   const catalogPage = new CatalogPage(page);

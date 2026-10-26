@@ -157,3 +157,24 @@ Review separate L10 closure and original Proposed history; source/runtime path s
 Discovery, Proposed requirement, environment-owned cleanup decision and one UI implementation complete. R10 closure separately committed. **REQ-PURCHASE-001 remains Proposed.** Strict typecheck PASS; isolated **1/1**; impacted **7/7**; full local/hosted **17/17 (16 UI + 1 API)**; three security checks PASS. Resource deltas, inventory-only mutation, exact reset recovery, one worker/zero retries/forbid-only and clean teardown verified. UI/cart/persisted-invoice oracles pass locally and in CI; public artifact/log scans, hashes and HTML withholding independently verified. No remaining implementation/validation blocker; queue/email/settlement limits remain explicit.
 
 Delivery: base main **676a04a49ad0255728c57b43e5c4b2d7ff6bf966**; branch **release/11-purchase-completion**; closure **380894689e02bd5721d79f5fb11a04c5013d2a64**; implementation **59be9d45dc60e8acb9b1df2b8e718f52f403f9c5**, test: add Release 11 purchase completion coverage. Final evidence-only documentation commit follows hosted verification. PR title **test: add purchase completion coverage**, target main, open/not draft. Create after evidence commit/push, return its URL and stop. Do not merge automatically.
+
+## 16. Post-merge human closure
+
+Original sections above preserve the Proposed requirement and pre-merge evidence unchanged.
+
+**L11 — explicit post-merge human leadership approval**, supplied for Release 12 Step 0 after [PR #15](https://github.com/alvarotarrifaste/playwright-toolshop-automation/pull/15) merged. Merge commit: **99be0a4fe9662808d477c31b76092f0ff81ad39d**. Post-merge [run 40403034808](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40403034808) is the supplied closure evidence.
+
+| Closure evidence | Result |
+| --- | --- |
+| Controlled suite | **17/17 PASS — 16 UI + 1 API** |
+| Strict TypeScript | **PASS** |
+| CI evidence security checks | **3/3 PASS** |
+| Execution | **One worker, zero retries** |
+| Reset/seed | **PASS** |
+| Teardown | **PASS** |
+| Public evidence | Sanitized **controlled-results published** |
+| Raw HTML | **Withheld** |
+
+**REQ-PURCHASE-001 Approved**; T-PURCHASE-001 maps to the approved requirement. Scope remains one authenticated seeded customer, Combination Pliers x1, synthetic deterministic billing, Cash on Delivery, UI order confirmation, cart clearing and persisted invoice readback in initial AWAITING_FULFILLMENT state. No settlement, fulfillment, shipping, email delivery, guest purchase or other payment-method coverage is claimed.
+
+**Release 11 CLOSED.** Human approval is separate from execution evidence.

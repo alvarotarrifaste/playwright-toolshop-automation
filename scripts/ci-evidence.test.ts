@@ -52,7 +52,7 @@ test('compact failure results preserve outcome/retry and exclude sensitive failu
     config: { workers: 1, metadata: { actualWorkers: 1 }, forbidOnly: true, projects: [{ retries: 0 }] },
     errors: [{ message: canary }],
     stats: { expected: 0, unexpected: 1, flaky: 0, skipped: 0 },
-    suites: [{ specs: [{ title: 'Synthetic failure', file: 'api-authorization.spec.ts', tests: [{
+    suites: [{ specs: [{ title: 'Synthetic failure', file: 'api/authentication/authorization.spec.ts', tags: ['api', 'auth', 'regression'], tests: [{
       status: 'unexpected', results: [{ status: 'failed', retry: 0, error: { message: canary },
         stdout: [{ text: canary }], stderr: [{ text: canary }],
         steps: [{ title: canary }], attachments: [{ body: canary }] }],
@@ -62,7 +62,17 @@ test('compact failure results preserve outcome/retry and exclude sensitive failu
   assert.equal(compact.exitCode, 1);
   assert.equal(compact.unexpected, 1);
   assert.equal(compact.globalErrors, 1);
+  assert.equal(compact.api, 1);
+  assert.equal(compact.ui, 0);
+  assert.equal(compact.tests[0].layer, 'API');
   assert.deepEqual(compact.tests[0].results, [{ status: 'failed', retry: 0 }]);
   assert.equal(JSON.stringify(compact).includes(canary), false);
   assert.equal(sensitiveText(JSON.stringify(compact), [canary]), false);
+  report.suites[0].specs[0].file = 'ui/authentication/authentication.spec.ts';
+  report.suites[0].specs[0].tags = ['ui', 'auth', 'regression'];
+  const uiCompact = compactResults(report, 1, canary);
+  assert.equal(uiCompact.api, 0);
+  assert.equal(uiCompact.ui, 1);
+  assert.equal(uiCompact.tests[0].layer, 'UI');
+  assert.equal(JSON.stringify(uiCompact).includes(canary), false);
 });
