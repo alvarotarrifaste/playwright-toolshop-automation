@@ -9,6 +9,7 @@ export class CartPage {
   readonly linePrices: Locator;
   readonly total: Locator;
   readonly quantityUpdatedMessage: Locator;
+  readonly proceedButton: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -19,10 +20,15 @@ export class CartPage {
     this.linePrices = page.locator('[data-test="line-price"]');
     this.total = page.locator('[data-test="cart-total"]');
     this.quantityUpdatedMessage = page.getByText('Product quantity updated.', { exact: true });
+    this.proceedButton = page.locator('[data-test="proceed-1"]');
   }
 
   async open(): Promise<void> {
     await this.cartLink.click();
+  }
+
+  async proceedToCheckout(): Promise<void> {
+    await this.proceedButton.click();
   }
 
   async updateQuantity(quantity: number): Promise<void> {
