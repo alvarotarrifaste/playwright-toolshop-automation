@@ -121,7 +121,24 @@ The first compact summary exposed reporter normalization: JSON tags omit `@`, un
 
 ## 12. CI/security evidence
 
-Scanner rules and workflow remain unchanged; the compact builder's layer classification follows native tags after the move. Local security checks: **3/3 PASS**, including API/UI classification and existing failure/secret exclusion. Hosted full-suite run, artifact decision and teardown evidence will be recorded after execution. Raw local console/JSON/HTML stay private; public candidates are scanned/staged/re-scanned through the existing wrapper.
+Scanner rules and workflow remain unchanged; the compact builder's layer classification follows native tags after the move. Local security checks: **3/3 PASS**, including API/UI classification and existing failure/secret exclusion.
+
+Hosted [run 40410082497](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40410082497), job **121878268780**, workflow_dispatch at **100b7b6ca9edc7db6edb6c5c9d39a9096da3cfba**: **SUCCESS**. Later approval/evidence edits are documentation only.
+
+| Hosted evidence | Result |
+| --- | --- |
+| Strict TypeScript | **PASS** |
+| CI evidence security checks | **3/3 PASS** |
+| Full controlled suite | **17/17 PASS — 16 UI + 1 API** |
+| Result integrity | All exact repository titles; expected=17; unexpected/flaky/skipped/global errors=0 |
+| Execution contract | Configured/actual worker=1; retries=[0]; each result passed at retry 0; forbidOnly=true |
+| Reset/seed | **PASS**, independently confirmed in compact evidence |
+| Teardown | **PASS**, logs confirm controlled containers/networks/volumes absent |
+| Artifact publication | Only sanitized **controlled-results**, artifact 12693801738, 1222 bytes, 14-day retention |
+| Scan decisions | Summary clean; HTML withheld as sensitive-or-uninspectable; diagnostic metadata clean, no failure upload on green run |
+| Public log audit | **23 log files scanned clean** against controlled secrets/auth material |
+
+Downloaded ZIP contains exactly results.json and scan.json. Its SHA256 matches GitHub artifact metadata: **9ba5334532dd6ccbf406fb895c05b123d53a719b389e7ec909379df18a028850**. Result SHA256 matches the scan manifest: **438a69b32fac24d4e4d70ebdb07e46c9bd967781e985f18aacc315a57f064fbc**. Independent inspection verified exact titles, counts, execution flags, outcome/retry records, publication decisions, resource absence and public log security. Raw local console/JSON/HTML remain private.
 
 ## 13. Risks/limitations
 
@@ -143,4 +160,4 @@ Review the separate R11 closure first, then the rename-aware diff. Check all eig
 
 ## 16. Release status
 
-Implementation complete; validation and hosted evidence in progress. Release 11 is CLOSED by explicit human approval. Release 12 will be delivered as an OPEN PR against main and will stop before human merge. Release 13 is not started.
+**Release 12 implementation and validation complete; ready for human review through an OPEN PR against main.** Typecheck, discovery/imports, exact functional equivalence, every subset, full 17/17 regression, hosted 17/17, three security checks, artifact/log audit, teardown and diff checks pass. No new functional scenario or framework abstraction is introduced. REQ-CATALOG-005 approval is recorded from the explicit human decision during this release; other pending/deferred statuses remain unchanged. Release 11 is CLOSED by explicit human approval. Delivery stops before human merge. Release 13 is not started.
