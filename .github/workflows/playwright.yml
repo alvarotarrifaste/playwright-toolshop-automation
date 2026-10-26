@@ -32,6 +32,8 @@ jobs:
         run: npm ci
       - name: Check TypeScript types
         run: npm run typecheck
+      - name: Verify CI evidence security boundary
+        run: npx tsx --test scripts/ci-evidence.test.ts
       - name: Install Chromium and system dependencies
         run: npx playwright install --with-deps chromium
       - name: Verify Docker and Compose
@@ -67,12 +69,14 @@ jobs:
             echo 'Unexpected destructive scheduler registration.' >&2
             exit 1
           fi
-      - name: Reset seed and run all Chromium scenarios
+      - name: Reset seed and run UI and API scenarios with private diagnostics
         id: tests
         timeout-minutes: 10
         # Release 2 helper resets/seeds, injects separate accounts, and enforces
         # --project=chromium --workers=1 --retries=0 --forbid-only.
-        run: npm run test:controlled
+        # Capture raw reporter/failure output locally; publish only compact results.
+        # The wrapper preserves the controlled helper's original test exit code.
+        run: npx tsx scripts/ci-evidence.ts run
       - name: Tear down controlled Toolshop
         if: ${{ always() && steps.dependencies.outcome == 'success' }}
         run: |
@@ -81,20 +85,36 @@ jobs:
           test -z "$(docker network ls -q --filter label=com.docker.compose.project=toolshop-controlled)"
           test -z "$(docker volume ls -q --filter label=com.docker.compose.project=toolshop-controlled)"
           echo 'Controlled containers, networks and volumes absent.'
-      - name: Upload Playwright HTML report
-        if: ${{ always() && steps.tests.outcome != 'skipped' }}
+      - name: Scan every candidate artifact and stage only clean evidence
+        id: scan
+        if: ${{ always() && (steps.tests.outcome == 'success' || steps.tests.outcome == 'failure') }}
+        run: npx tsx scripts/ci-evidence.ts scan
+      - name: Upload sanitized CI results and scan decisions
+        if: ${{ always() && steps.scan.outcome == 'success' && steps.scan.outputs.summary == 'true' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: controlled-results
+          path: .sut/ci-public/summary/
+          # Exact scanner-owned staging path; never upload the private .sut root.
+          include-hidden-files: true
+          retention-days: 14
+          if-no-files-found: error
+      - name: Upload clean Playwright HTML report
+        if: ${{ always() && steps.scan.outcome == 'success' && steps.scan.outputs.html == 'true' }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: playwright-report
-          path: playwright-report/
+          path: .sut/ci-public/html/
+          include-hidden-files: true
           retention-days: 14
           if-no-files-found: error
-      - name: Upload Playwright failure diagnostics
-        if: ${{ always() && steps.tests.outcome == 'failure' }}
+      - name: Upload clean Playwright failure diagnostics
+        if: ${{ always() && steps.tests.outcome == 'failure' && steps.scan.outcome == 'success' && steps.scan.outputs.diagnostics == 'true' }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: playwright-test-results
-          path: test-results/
+          path: .sut/ci-public/diagnostics/
+          include-hidden-files: true
           retention-days: 14
           # Failures before browser/test execution may produce no diagnostics.
           if-no-files-found: warn
