@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
+import { LoginPage } from '../../../pages/authentication/LoginPage';
 
 const TEST_USER_EMAIL = process.env.TEST_USER_EMAIL;
 const TEST_USER_PASSWORD = process.env.TEST_USER_PASSWORD;
 const TEST_NEGATIVE_USER_EMAIL = process.env.TEST_NEGATIVE_USER_EMAIL;
 
-test('registered user can login successfully', async ({ page }) => {
+test('registered user can login successfully', { tag: ['@ui', '@auth', '@regression', '@smoke'] }, async ({ page }) => {
   if (!TEST_USER_EMAIL?.trim()) {
     throw new Error('Missing or blank required environment variable: TEST_USER_EMAIL');
   }
@@ -30,7 +30,7 @@ test('registered user can login successfully', async ({ page }) => {
 
 });
 
-test('customer cannot sign in with an incorrect password', async ({ page }) => {
+test('customer cannot sign in with an incorrect password', { tag: ['@ui', '@auth', '@regression'] }, async ({ page }) => {
   if (!TEST_NEGATIVE_USER_EMAIL?.trim()) {
     throw new Error('Missing or blank required environment variable: TEST_NEGATIVE_USER_EMAIL');
   }
@@ -51,7 +51,7 @@ test('customer cannot sign in with an incorrect password', async ({ page }) => {
   await expect(loginPage.loginErrorMessage).toHaveText('Invalid email or password');
 });
 
-test('signed-in customer logs out', async ({ page }) => {
+test('signed-in customer logs out', { tag: ['@ui', '@auth', '@regression'] }, async ({ page }) => {
   if (!TEST_USER_EMAIL?.trim()) {
     throw new Error('Missing or blank required environment variable: TEST_USER_EMAIL');
   }
@@ -73,7 +73,7 @@ test('signed-in customer logs out', async ({ page }) => {
   await expect(page.getByRole('link', { name: 'Sign in', exact: true })).toBeVisible();
 });
 
-test('unauthenticated visitor cannot access /account', async ({ page }) => {
+test('unauthenticated visitor cannot access /account', { tag: ['@ui', '@auth', '@regression'] }, async ({ page }) => {
   const loginPage = new LoginPage(page);
 
   await page.goto('/account');

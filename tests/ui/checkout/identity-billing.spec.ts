@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
-import { CatalogPage } from '../pages/CatalogPage';
-import { ProductDetailsPage } from '../pages/ProductDetailsPage';
-import { CartPage } from '../pages/CartPage';
-import { CheckoutPage } from '../pages/CheckoutPage';
+import { LoginPage } from '../../../pages/authentication/LoginPage';
+import { CatalogPage } from '../../../pages/catalog/CatalogPage';
+import { ProductDetailsPage } from '../../../pages/catalog/ProductDetailsPage';
+import { CartPage } from '../../../pages/cart/CartPage';
+import { CheckoutPage } from '../../../pages/checkout/CheckoutPage';
 
-test('anonymous checkout presents the identity choice before billing', async ({ page }) => {
+test('anonymous checkout presents the identity choice before billing', { tag: ['@ui', '@checkout', '@regression'] }, async ({ page }) => {
   const catalog = new CatalogPage(page);
   const details = new ProductDetailsPage(page);
   const cart = new CartPage(page);
@@ -37,7 +37,7 @@ test('anonymous checkout presents the identity choice before billing', async ({ 
   await expect(checkout.paymentMethod).not.toBeVisible();
 });
 
-test('authenticated checkout continues to billing without another login prompt', async ({ page }) => {
+test('authenticated checkout continues to billing without another login prompt', { tag: ['@ui', '@checkout', '@regression'] }, async ({ page }) => {
   const email = process.env.TEST_USER_EMAIL;
   const password = process.env.TEST_USER_PASSWORD;
   if (!email?.trim() || !password?.trim()) {

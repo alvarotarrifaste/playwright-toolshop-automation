@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { CatalogPage } from '../pages/CatalogPage';
+import { CatalogPage } from '../../../pages/catalog/CatalogPage';
 
-test('visitor selects a category and clears it to restore the initial product page', async ({ page }) => {
+test('visitor selects a category and clears it to restore the initial product page', { tag: ['@ui', '@catalog', '@regression'] }, async ({ page }) => {
   const catalogPage = new CatalogPage(page);
   const pliersProducts = [
     'Combination Pliers', 'Pliers', 'Bolt Cutters', 'Long Nose Pliers', 'Slip Joint Pliers',
@@ -34,7 +34,7 @@ test('visitor selects a category and clears it to restore the initial product pa
   }
 });
 
-test('visitor searches after category filtering and sees matching products with the category cleared', async ({ page }) => {
+test('visitor searches after category filtering and sees matching products with the category cleared', { tag: ['@ui', '@catalog', '@regression'] }, async ({ page }) => {
   const catalogPage = new CatalogPage(page);
   const pliersProducts = [
     'Combination Pliers', 'Pliers', 'Bolt Cutters', 'Long Nose Pliers', 'Slip Joint Pliers',

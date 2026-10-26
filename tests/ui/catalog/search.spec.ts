@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { CatalogPage } from '../pages/CatalogPage';
-import { ProductDetailsPage } from '../pages/ProductDetailsPage';
+import { CatalogPage } from '../../../pages/catalog/CatalogPage';
+import { ProductDetailsPage } from '../../../pages/catalog/ProductDetailsPage';
 
-test('visitor searches for a product and sees matching results', async ({ page }) => {
+test('visitor searches for a product and sees matching results', { tag: ['@ui', '@catalog', '@regression', '@smoke'] }, async ({ page }) => {
   const catalogPage = new CatalogPage(page);
 
   await catalogPage.goto();
@@ -13,7 +13,7 @@ test('visitor searches for a product and sees matching results', async ({ page }
   await expect(catalogPage.productNames.filter({ hasText: /^\s*Pliers\s*$/ })).toBeVisible();
 });
 
-test('visitor searches for a product with no matches', async ({ page }) => {
+test('visitor searches for a product with no matches', { tag: ['@ui', '@catalog', '@regression'] }, async ({ page }) => {
   const catalogPage = new CatalogPage(page);
 
   await catalogPage.goto();
@@ -23,7 +23,7 @@ test('visitor searches for a product with no matches', async ({ page }) => {
   await expect(catalogPage.productNames).toHaveCount(0);
 });
 
-test('visitor opens a product from search results and views its details', async ({ page }) => {
+test('visitor opens a product from search results and views its details', { tag: ['@ui', '@catalog', '@regression'] }, async ({ page }) => {
   const catalogPage = new CatalogPage(page);
 
   await catalogPage.goto();

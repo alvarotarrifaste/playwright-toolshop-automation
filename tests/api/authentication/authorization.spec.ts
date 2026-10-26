@@ -4,7 +4,7 @@ import { test, expect } from '@playwright/test';
 // The existing controlled Chromium project also runs request-only tests.
 test.use({ baseURL: 'http://localhost:8091', trace: 'off' });
 
-test('T-API-AUTH-001: current customer resource rejects anonymous access and returns the authenticated customer', async ({ request }) => {
+test('T-API-AUTH-001: current customer resource rejects anonymous access and returns the authenticated customer', { tag: ['@api', '@auth', '@regression', '@smoke'] }, async ({ request }) => {
   const email = process.env.TEST_USER_EMAIL;
   const password = process.env.TEST_USER_PASSWORD;
   if (!email?.trim() || !password?.trim()) {

@@ -9,7 +9,14 @@
     "sut:ready": "tsx scripts/toolshop.ts ready",
     "sut:reset": "tsx scripts/toolshop.ts reset",
     "sut:down": "tsx scripts/toolshop.ts down",
-    "test:controlled": "tsx scripts/toolshop.ts test"
+    "test:controlled": "tsx scripts/toolshop.ts test",
+    "test:ui": "npm run test:controlled -- --grep @ui",
+    "test:api": "npm run test:controlled -- --grep @api",
+    "test:smoke": "npm run test:controlled -- --grep @smoke",
+    "test:auth": "npm run test:controlled -- --grep @auth",
+    "test:catalog": "npm run test:controlled -- --grep @catalog",
+    "test:cart": "npm run test:controlled -- --grep @cart",
+    "test:checkout": "npm run test:controlled -- --grep @checkout"
   },
   "keywords": [],
   "author": "",
