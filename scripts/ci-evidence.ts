@@ -22,7 +22,7 @@ export function compactResults(report: JSONReport, exitCode: number, log: string
         for (const test of spec.tests) {
           tests.push({
             title: spec.title,
-            layer: spec.tags.includes('@api') ? 'API' : 'UI',
+            layer: spec.tags.includes('api') ? 'API' : 'UI',
             outcome: ['expected', 'unexpected', 'flaky', 'skipped'].includes(test.status) ? test.status : 'unknown',
             results: test.results.map(result => ({
               status: ['passed', 'failed', 'timedOut', 'skipped', 'interrupted'].includes(result.status || '') ? result.status! : 'unknown',
