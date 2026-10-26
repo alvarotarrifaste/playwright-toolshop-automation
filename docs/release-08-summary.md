@@ -156,3 +156,23 @@ Review pinned sources → Proposed requirement → catalogue mapping → API sce
 Discovery, proposal, focused implementation and local validation complete. Requirement remains Proposed. Human reporting decision implemented and locally verified, including controlled failure withholding. Final local results: API 1/1, authentication 4/4, full 14/14; typecheck and three security checks pass; one worker, zero retries, reset/seed, forbid-only and clean teardown confirmed. Hosted validation **14/14 PASS** and independent artifact/log verification complete: one clean compact artifact, raw HTML withheld, no injected credentials or unmasked authentication material found in public evidence/logs, cleanup verified. No remaining implementation/validation blocker. REQ-API-AUTH-001 remains Proposed; one-customer/missing-versus-valid scope and conservative scan limitations remain explicit.
 
 Git delivery: base main **6aee6ff**; branch **release/08-api-authorization**; implementation **408e832631aa131650524990e3da20946d4f5bc9**, test: add Release 8 API authorization pilot. A final documentation-only evidence commit follows hosted verification. PR title **test: add API authorization coverage**, target main, open/not draft. PR creation is the final delivery action after evidence commit/push; the returned URL belongs in the handoff. No merge or Release 9 work.
+
+## 16. Post-merge human closure
+
+This is a separate closure record. Sections 1–15 above preserve the original Proposed requirement, pre-merge decisions, implementation and validation history; they are not rewritten as if approval existed before human review.
+
+**L8 — explicit human leadership approval:** supplied in the Release 9 Step 0 instruction after [PR #12](https://github.com/alvarotarrifaste/playwright-toolshop-automation/pull/12) merged. Main merge commit: **fbb1a9df6f0718d01af86d0e312c84a4c005a062**. Post-merge [run 40375008221](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40375008221) is the closure execution evidence supplied by leadership.
+
+| Post-merge closure evidence | Result |
+| --- | --- |
+| Functional suite | **14/14 PASS: 13 UI + 1 API** |
+| Strict TypeScript check | **PASS** |
+| CI-evidence security checks | **3/3 PASS** |
+| Controlled execution | **One worker, zero retries** |
+| Reset/seed and teardown | **PASS** |
+| Public evidence | Sanitized **controlled-results** artifact published |
+| Raw HTML | **Withheld** by the CI evidence security boundary |
+
+**REQ-API-AUTH-001 is Approved** by this explicit human decision; T-API-AUTH-001 maps to that approved requirement. The bounded authorization meaning, thirteen existing UI scenarios, lifecycle controls and reporting/security decision remain unchanged. Approval comes from leadership, separately from source, observation and passing automation.
+
+**Release 8 CLOSED.** Release 9 starts only after this three-document reconciliation is committed separately as `docs: close Release 8 API authorization pilot`. No Release 9 architecture decision is attributed to this closure.
