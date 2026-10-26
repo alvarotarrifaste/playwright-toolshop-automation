@@ -111,7 +111,24 @@ Compact evidence independently scanned clean; raw HTML withheld as sensitive-or-
 
 ## 13. CI/security evidence
 
-Pending hosted execution and independent compact artifact/public log audit. Existing fail-closed candidate scan/withholding and sanitized controlled-results policy unchanged. No new stdout/raw attachment, auth extraction, payment secrets or worker startup. API pilot trace-off and private UI diagnostics preserved.
+Actual [run 40399514480](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40399514480), [job 121841312788](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40399514480/job/121841312788): **success**, workflow_dispatch attempt 1 on implementation **59be9d45dc60e8acb9b1df2b8e718f52f403f9c5**, 2026-10-26 **20:52:43–20:54:46 UTC**. Existing workflow dispatched on the release branch without workflow/trigger/runner/security changes.
+
+| Hosted check | Result |
+| --- | --- |
+| Install/type/security | npm ci, strict typecheck, **3/3 existing security checks**, Chromium setup PASS |
+| Controlled SUT | Pins/readiness, ARM64 gateway and scheduler checks PASS |
+| Functional tests | **17/17 PASS: 16 UI + 1 API**, exact purchase and sixteen baseline titles |
+| Contract | expected=17; unexpected/flaky/skipped/globalErrors=0; configured/actual workers=1; configuredRetries=[0]; one passed retry=0 result each; forbidOnly=true; resetSeedConfirmed=true |
+| Cleanup | PASS; public log verifies containers, networks and volumes absent |
+| Public evidence | Only controlled-results uploaded; summary clean; HTML withheld as sensitive-or-uninspectable; green diagnostic metadata clean, failure-only upload skipped |
+
+Downloaded [artifact 12688162288](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40399514480/artifacts/12688162288): **1,218 ZIP bytes**, created 2026-10-26T20:54:42Z, expires 2026-11-09T20:54:41Z. Contains exactly **results.json** and **scan.json**; no raw report, console, credentials or payment/billing/auth payload. Extracted bytes independently scan clean. Exact titles/results/worker/retry/lifecycle flags were asserted from downloaded data, not inferred from a green badge.
+
+ZIP SHA256 **a3d13d1d79723fcdf6d020f30c2104e7082f5ad772fe0fe40fb27ac629937101** equals GitHub digest. results.json SHA256 **c0c9f35744bd410f522933d3d7a8870665876ad3cec7d82a1e3a764823f931ab** matches the manifest and final local summary. Manifest also hashes clean staged green diagnostic metadata that was not uploaded.
+
+All **23 public log files** were downloaded/audited for injected credentials/encodings and JWT/bearer/header/cookie/token patterns: no injected credential or unmasked authentication material found. Checkout's already masked Basic placeholder was recognized as masked-only during independent audit; no upload scanner policy changed. Logs confirm compact results, withholding and clean teardown. Local resource/worker/reset audits are separate from hosted invoice/cart/readback proof; no additional hosted database/queue audit is claimed.
+
+Existing security policy unchanged; no new stdout/raw attachment, auth extraction, payment secrets or worker startup. API pilot trace-off/private UI diagnostics preserved. Inspection scaffolding remains ignored under .sut/. Existing security tests/R8 failure-withholding evidence apply; no new failure experiment claimed. A final documentation-only evidence commit changes no tested executable/workflow content; a later PR-triggered run is not represented as already complete.
 
 ## 14. Risks/limitations
 
@@ -137,4 +154,6 @@ Review separate L10 closure and original Proposed history; source/runtime path s
 
 ## 17. Release status
 
-Discovery, Proposed requirement, explicit environment-owned cleanup decision and one UI implementation complete. R10 closure separately committed. REQ-PURCHASE-001 remains Proposed. Typecheck PASS; isolated 1/1; impacted 7/7; full 17/17; three security checks PASS. Resource deltas, inventory-only mutation, exact reset recovery, one worker/zero retries/forbid-only and clean teardown verified. Hosted CI/security evidence and open-PR delivery pending. Commit, push, create OPEN PR against main, then stop. Do not merge automatically.
+Discovery, Proposed requirement, environment-owned cleanup decision and one UI implementation complete. R10 closure separately committed. **REQ-PURCHASE-001 remains Proposed.** Strict typecheck PASS; isolated **1/1**; impacted **7/7**; full local/hosted **17/17 (16 UI + 1 API)**; three security checks PASS. Resource deltas, inventory-only mutation, exact reset recovery, one worker/zero retries/forbid-only and clean teardown verified. UI/cart/persisted-invoice oracles pass locally and in CI; public artifact/log scans, hashes and HTML withholding independently verified. No remaining implementation/validation blocker; queue/email/settlement limits remain explicit.
+
+Delivery: base main **676a04a49ad0255728c57b43e5c4b2d7ff6bf966**; branch **release/11-purchase-completion**; closure **380894689e02bd5721d79f5fb11a04c5013d2a64**; implementation **59be9d45dc60e8acb9b1df2b8e718f52f403f9c5**, test: add Release 11 purchase completion coverage. Final evidence-only documentation commit follows hosted verification. PR title **test: add purchase completion coverage**, target main, open/not draft. Create after evidence commit/push, return its URL and stop. Do not merge automatically.
