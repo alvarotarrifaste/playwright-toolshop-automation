@@ -12,12 +12,12 @@ A QA automation portfolio project covering the Toolshop shopping journey with Pl
 
 ## Current Coverage
 
-**19 independent scenarios: 16 UI + 3 API**, running through the Chromium project.
+**22 independent scenarios: 19 UI + 3 API**, running through the Chromium project.
 
 | Domain | Coverage | Scenarios |
 | --- | --- | --- |
 | Authentication | Successful/invalid login, logout with post-logout route protection, fresh protected account route | 4 UI |
-| Catalog | Matching/empty search, product details, category selection/clearing and search reset | 5 UI |
+| Catalog | Matching/empty search, richer product details, category/brand filtering and clearing, filter intersection, pagination | 8 UI |
 | Cart | Anonymous/authenticated add, saved quantity update, selected-item removal | 4 UI |
 | Checkout | Anonymous identity choice and authenticated billing progression | 2 UI |
 | Purchase | Authenticated COD order, confirmation, cart clearing, persisted invoice readback | 1 UI |
@@ -31,7 +31,7 @@ Purchase coverage checks initial `AWAITING_FULFILLMENT` state. Settlement, shipm
 tests/
   ui/
     authentication/authentication.spec.ts
-    catalog/{search,filtering}.spec.ts
+    catalog/{search,filtering,browsing}.spec.ts
     cart/{add-to-cart,cart-maintenance}.spec.ts
     checkout/{identity-billing,purchase}.spec.ts
   api/
@@ -61,7 +61,7 @@ Folders separate execution layers and functional domains. Each test has native P
 | --- | --- |
 | Layer | Exactly one of `@ui`, `@api` |
 | Primary domain | Exactly one of `@auth`, `@catalog`, `@cart`, `@checkout` |
-| Regression | All 19 scenarios have `@regression` |
+| Regression | All 22 scenarios have `@regression` |
 | Smoke | Five critical paths also have `@smoke`: UI login, matching search, anonymous add-to-cart, COD purchase and API authorization |
 
 Purchase belongs to checkout; API authorization belongs to authentication. Tags describe execution selection and do not confer requirement approval or priority. Full regression is authoritative.
@@ -91,12 +91,12 @@ Start the environment once, run the required subsets, then tear it down:
 
 | Command | Selection |
 | --- | --- |
-| `npm run test:controlled` | All 19 scenarios |
-| `npm run test:ui` | 16 UI scenarios |
+| `npm run test:controlled` | All 22 scenarios |
+| `npm run test:ui` | 19 UI scenarios |
 | `npm run test:api` | 3 API scenarios |
 | `npm run test:smoke` | 5 critical paths |
 | `npm run test:auth` | 4 UI + 3 API authentication scenarios |
-| `npm run test:catalog` | 5 catalog scenarios |
+| `npm run test:catalog` | 8 catalog scenarios |
 | `npm run test:cart` | 4 cart scenarios |
 | `npm run test:checkout` | 3 checkout/purchase scenarios |
 
@@ -116,7 +116,7 @@ On Windows, use `npm.cmd` / `npx.cmd` if PowerShell blocks the `.ps1` launchers.
 
 ## CI/CD
 
-[GitHub Actions](.github/workflows/playwright.yml) runs on PRs targeting `main`, pushes to `main`, and manual dispatch. It installs locked dependencies, runs strict typecheck and three evidence security checks, starts the pinned environment and executes all 19 scenarios. Teardown runs even after test failure and verifies resource removal.
+[GitHub Actions](.github/workflows/playwright.yml) runs on PRs targeting `main`, pushes to `main`, and manual dispatch. It installs locked dependencies, runs strict typecheck and three evidence security checks, starts the pinned environment and executes all 22 scenarios. Teardown runs even after test failure and verifies resource removal.
 
 The evidence wrapper preserves test failures while keeping raw output private. The scanner stages and re-scans approved bytes before publishing `controlled-results` (14-day retention). HTML and failure diagnostics are published only when inspectable and clean; opaque or sensitive content is withheld. Local reports/traces can contain credentials or session data and require review before sharing. API tracing is disabled in both request-only authentication specs.
 
