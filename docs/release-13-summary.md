@@ -149,3 +149,20 @@ Review separate R12 closure first. Compare P13/I13/O13 and exact 401/423 sequenc
 ## 19. Release status
 
 **Release 13 implementation and validation complete; ready for human review through an OPEN PR against main.** Two focused API scenarios added and existing UI logout strengthened; all seventeen baseline scenarios remain green. Final suite **19: 16 UI + 3 API**. Strict types, isolated cases, auth 7/7, original API regression, account isolation/reset recovery, local/hosted 19/19, security 3/3, scanned public evidence, teardown and diff checks PASS. Approved REQ-AUTH-005 is implemented; REQ-API-AUTH-002 remains Proposed for human review, and existing Requires confirmation requirements are unchanged. Release 12 is CLOSED. Delivery stops before automatic merge; Release 14 is not started.
+
+## 20. Post-merge human closure
+
+Original sections 1–19 preserve the discovery, Proposed revocation requirement and pre-merge evidence unchanged. Explicit human leadership closure supplied for Release 14 Step 0 records [PR #17](https://github.com/alvarotarrifaste/playwright-toolshop-automation/pull/17) merged at **09884c2cb6b7b900679df00be6cc2e17c0f3ce2c**. Post-merge [run 40523760365](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40523760365) is the supplied closure evidence.
+
+| Post-merge evidence | Result |
+| --- | --- |
+| Controlled suite | **19/19 PASS — 16 UI + 3 API** |
+| Strict TypeScript | **PASS** |
+| CI-evidence security checks | **3/3 PASS** |
+| Execution | **One worker, zero retries** |
+| Reset/seed | **PASS** |
+| Teardown | **PASS** |
+| Sanitized artifact | **controlled-results**, artifact **12742912935** |
+| Raw HTML | **Withheld** |
+
+**REQ-AUTH-005 approved implementation confirmed. REQ-API-AUTH-002 human-approved (L13)**; T-API-AUTH-002 maps to the approved requirement without scope/assertion changes. Explicit backend logout remains distinct from UI token clearing. Other Requires confirmation statuses remain unchanged. **Release 13 CLOSED.**
