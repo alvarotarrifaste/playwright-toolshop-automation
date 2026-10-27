@@ -71,6 +71,9 @@ test('signed-in customer logs out', { tag: ['@ui', '@auth', '@regression'] }, as
   await loginPage.logout();
 
   await expect(page.getByRole('link', { name: 'Sign in', exact: true })).toBeVisible();
+  await page.goto('/account');
+  await expect(page).toHaveURL(/\/auth\/login$/);
+  await expect(loginPage.loginButton).toBeVisible();
 });
 
 test('unauthenticated visitor cannot access /account', { tag: ['@ui', '@auth', '@regression'] }, async ({ page }) => {

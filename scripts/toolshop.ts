@@ -86,15 +86,24 @@ function provision() {
     run('git', ['clone', '--depth', '1', '--branch', lock.tag, lock.repository, upstream], { timeout: 300000 });
   }
   verifyCheckout();
-  if (!fs.existsSync(controlledEnv)) {
+  const existing = fs.existsSync(controlledEnv) ? dotenv.parse(fs.readFileSync(controlledEnv)) : {};
+  if (!fs.existsSync(controlledEnv) || !existing.TEST_LOCK_USER_EMAIL || !existing.TEST_LOCK_USER_PASSWORD) {
     // Read public defaults from the pinned external source, never embed them in
     // automation source or documentation. The generated file is Git-ignored.
     const seeder = fs.readFileSync(path.join(upstream, 'sprint5/API/database/seeders/UserSeeder.php'), 'utf8');
     const users = [...seeder.matchAll(/'email'\s*=>\s*'([^']+)'[\s\S]*?'password'\s*=>\s*app\('hash'\)->make\('([^']+)'\)/g)];
-    if (users.length < 3) throw new Error('Pinned seeder account format is not supported.');
-    const values = { BASE_URL: ui, TEST_USER_EMAIL: users[1][1], TEST_USER_PASSWORD: users[1][2], TEST_NEGATIVE_USER_EMAIL: users[2][1] };
-    fs.writeFileSync(controlledEnv, Object.entries(values).map(([key, value]) => `${key}=${JSON.stringify(value)}`).join('\n') + '\n', { mode: 0o600, flag: 'wx' });
-    console.log('Created ignored .env.controlled from pinned seeded accounts; values are not logged.');
+    if (users.length < 4) throw new Error('Pinned seeder account format is not supported.');
+    const locking = { TEST_LOCK_USER_EMAIL: users[3][1], TEST_LOCK_USER_PASSWORD: users[3][2] };
+    if (!fs.existsSync(controlledEnv)) {
+      const values = { BASE_URL: ui, TEST_USER_EMAIL: users[1][1], TEST_USER_PASSWORD: users[1][2], TEST_NEGATIVE_USER_EMAIL: users[2][1], ...locking };
+      fs.writeFileSync(controlledEnv, Object.entries(values).map(([key, value]) => `${key}=${JSON.stringify(value)}`).join('\n') + '\n', { mode: 0o600, flag: 'wx' });
+      console.log('Created ignored .env.controlled from pinned seeded accounts; values are not logged.');
+    } else {
+      // Upgrade older local files without replacing existing credentials/configuration.
+      const missing = Object.entries(locking).filter(([key]) => !existing[key]);
+      fs.appendFileSync(controlledEnv, '\n' + missing.map(([key, value]) => `${key}=${JSON.stringify(value)}`).join('\n') + '\n');
+      console.log('Added dedicated locking account to ignored controlled configuration; values are not logged.');
+    }
   }
   console.log(`SUT verified: tag ${lock.tag}, commit ${lock.commit}.`);
 }
@@ -195,7 +204,7 @@ async function test(args: string[]): Promise<number> {
   return await new Promise<number>((resolve, reject) => {
     const child = spawn(process.execPath, [require.resolve('@playwright/test/cli'), 'test', '--project=chromium', '--workers=1', '--retries=0', '--forbid-only', ...args], {
       cwd: root, stdio: 'inherit', windowsHide: true,
-      env: { ...values, BASE_URL: ui, PLAYWRIGHT_HTML_OPEN: 'never' },
+      env: { ...values, BASE_URL: ui, API_BASE_URL: api, PLAYWRIGHT_HTML_OPEN: 'never' },
     });
     child.on('error', reject);
     child.on('exit', code => resolve(code ?? 1));

@@ -1,8 +1,14 @@
 import { test, expect } from '@playwright/test';
 
-// Only this API spec opts out: traces can retain login payloads and bearer tokens.
+// Request-only auth specs opt out: traces can retain login payloads and bearer tokens.
 // The existing controlled Chromium project also runs request-only tests.
-test.use({ baseURL: 'http://localhost:8091', trace: 'off' });
+test.use({ baseURL: process.env.API_BASE_URL, trace: 'off' });
+
+test.beforeAll(() => {
+  if (!process.env.API_BASE_URL?.trim()) {
+    throw new Error('API authorization requires injected API_BASE_URL');
+  }
+});
 
 test('T-API-AUTH-001: current customer resource rejects anonymous access and returns the authenticated customer', { tag: ['@api', '@auth', '@regression', '@smoke'] }, async ({ request }) => {
   const email = process.env.TEST_USER_EMAIL;

@@ -12,16 +12,16 @@ A QA automation portfolio project covering the Toolshop shopping journey with Pl
 
 ## Current Coverage
 
-**17 independent scenarios: 16 UI + 1 API**, running through the Chromium project.
+**19 independent scenarios: 16 UI + 3 API**, running through the Chromium project.
 
 | Domain | Coverage | Scenarios |
 | --- | --- | --- |
-| Authentication | Successful/invalid login, logout, protected account route | 4 UI |
+| Authentication | Successful/invalid login, logout with post-logout route protection, fresh protected account route | 4 UI |
 | Catalog | Matching/empty search, product details, category selection/clearing and search reset | 5 UI |
 | Cart | Anonymous/authenticated add, saved quantity update, selected-item removal | 4 UI |
 | Checkout | Anonymous identity choice and authenticated billing progression | 2 UI |
 | Purchase | Authenticated COD order, confirmation, cart clearing, persisted invoice readback | 1 UI |
-| API authentication | Anonymous rejection and authenticated current-customer read | 1 API |
+| API authentication | Anonymous/authenticated current-customer access, customer locking, explicit API logout invalidation | 3 API |
 
 Purchase coverage checks initial `AWAITING_FULFILLMENT` state. Settlement, shipment, fulfillment and email delivery are outside this scope. See [requirements](docs/requirements.md) and the [test catalogue](docs/test-catalogue.md) for approval states and coverage boundaries.
 
@@ -35,7 +35,7 @@ tests/
     cart/{add-to-cart,cart-maintenance}.spec.ts
     checkout/{identity-billing,purchase}.spec.ts
   api/
-    authentication/authorization.spec.ts
+    authentication/{authorization,account-security}.spec.ts
 pages/
   authentication/LoginPage.ts
   catalog/{CatalogPage,ProductDetailsPage}.ts
@@ -61,14 +61,14 @@ Folders separate execution layers and functional domains. Each test has native P
 | --- | --- |
 | Layer | Exactly one of `@ui`, `@api` |
 | Primary domain | Exactly one of `@auth`, `@catalog`, `@cart`, `@checkout` |
-| Regression | All 17 scenarios have `@regression` |
+| Regression | All 19 scenarios have `@regression` |
 | Smoke | Five critical paths also have `@smoke`: UI login, matching search, anonymous add-to-cart, COD purchase and API authorization |
 
 Purchase belongs to checkout; API authorization belongs to authentication. Tags describe execution selection and do not confer requirement approval or priority. Full regression is authoritative.
 
 ## Controlled Test Environment
 
-The [SUT lock](environment/toolshop.lock.json) fixes Toolshop 2.5 source and Docker image digests. The helper checks bounded readiness, resets/seeds before every test invocation and injects separate positive/negative customer credentials from ignored environment configuration.
+The [SUT lock](environment/toolshop.lock.json) fixes Toolshop 2.5 source and Docker image digests. The helper checks bounded readiness, resets/seeds before every test invocation and injects separate positive, negative and locking customer credentials from ignored environment configuration.
 
 Local endpoints are UI `http://localhost:4200` and API `http://localhost:8091`. State is disposable: reset restores seed data, counters, queues and stock; teardown removes controlled containers, networks and volumes. Purchase jobs remain queued; tests start no queue workers or scheduler. Do not overlap controlled runs, manual sessions or resets.
 
@@ -91,11 +91,11 @@ Start the environment once, run the required subsets, then tear it down:
 
 | Command | Selection |
 | --- | --- |
-| `npm run test:controlled` | All 17 scenarios |
+| `npm run test:controlled` | All 19 scenarios |
 | `npm run test:ui` | 16 UI scenarios |
-| `npm run test:api` | 1 API scenario |
+| `npm run test:api` | 3 API scenarios |
 | `npm run test:smoke` | 5 critical paths |
-| `npm run test:auth` | 4 UI + 1 API authentication scenarios |
+| `npm run test:auth` | 4 UI + 3 API authentication scenarios |
 | `npm run test:catalog` | 5 catalog scenarios |
 | `npm run test:cart` | 4 cart scenarios |
 | `npm run test:checkout` | 3 checkout/purchase scenarios |
@@ -112,13 +112,13 @@ npx tsx --test scripts/ci-evidence.test.ts
 npx playwright show-report
 ```
 
-On Windows, use `npm.cmd` / `npx.cmd` if PowerShell blocks the `.ps1` launchers. Provisioning generates ignored `.env.controlled`; externally injected credentials take precedence. Optional direct Playwright execution uses `.env` (see [.env.example](.env.example)) and bypasses the controlled reset/seed contract.
+On Windows, use `npm.cmd` / `npx.cmd` if PowerShell blocks the `.ps1` launchers. Provisioning generates ignored `.env.controlled`; externally injected credentials take precedence. Optional direct Playwright execution uses `.env` (see [.env.example](.env.example)) and bypasses the controlled reset/seed contract. Direct API runs require `API_BASE_URL`; locking additionally requires its dedicated customer variables from the template.
 
 ## CI/CD
 
-[GitHub Actions](.github/workflows/playwright.yml) runs on PRs targeting `main`, pushes to `main`, and manual dispatch. It installs locked dependencies, runs strict typecheck and three evidence security checks, starts the pinned environment and executes all 17 scenarios. Teardown runs even after test failure and verifies resource removal.
+[GitHub Actions](.github/workflows/playwright.yml) runs on PRs targeting `main`, pushes to `main`, and manual dispatch. It installs locked dependencies, runs strict typecheck and three evidence security checks, starts the pinned environment and executes all 19 scenarios. Teardown runs even after test failure and verifies resource removal.
 
-The evidence wrapper preserves test failures while keeping raw output private. The scanner stages and re-scans approved bytes before publishing `controlled-results` (14-day retention). HTML and failure diagnostics are published only when inspectable and clean; opaque or sensitive content is withheld. Local reports/traces can contain credentials or session data and require review before sharing. API tracing remains disabled in the authorization spec.
+The evidence wrapper preserves test failures while keeping raw output private. The scanner stages and re-scans approved bytes before publishing `controlled-results` (14-day retention). HTML and failure diagnostics are published only when inspectable and clean; opaque or sensitive content is withheld. Local reports/traces can contain credentials or session data and require review before sharing. API tracing is disabled in both request-only authentication specs.
 
 ## Engineering Principles
 
