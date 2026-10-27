@@ -125,11 +125,28 @@ Final public compact evidence scanned clean; raw HTML withheld. Result SHA256 **
 
 ## 16. CI/security evidence
 
-Local security checks **3/3 PASS**. Existing scanner, compact allowlist, request-only API trace policy, private diagnostics, sanitized staging/re-scan, publication and teardown contracts remain unchanged. Hosted execution/artifact audit pending; no credentials, tokens or runtime IDs enter tags, titles or oracle data.
+Local security checks **3/3 PASS**. Hosted [run 40531788650](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40531788650), job **122286279519**, at **0ebc35b9136b98ec8c9aa30a690467311d8ec916**: **SUCCESS**. Subsequent delivery edits only record this evidence in documentation.
+
+| Hosted evidence | Result |
+| --- | --- |
+| Strict TypeScript | **PASS** |
+| CI evidence security checks | **3/3 PASS** |
+| Full controlled regression | **22/22 PASS — 19 UI + 3 API** |
+| Result integrity | All 22 exact repository titles; expected=22; unexpected/flaky/skipped/global errors=0 |
+| Execution contract | Configured/actual worker=1; retries=[0]; every case passed at retry 0; forbidOnly=true |
+| Reset/seed | **PASS**, confirmed in compact evidence |
+| Teardown | **PASS**, logs confirm controlled containers/networks/volumes absent |
+| Public artifact | Only sanitized **controlled-results**, artifact **12745639517**, **1399 bytes**, 14-day retention |
+| Scan decisions | Summary clean; raw HTML withheld as sensitive-or-uninspectable; diagnostic metadata clean, no failure upload on green run |
+| Public log audit | **23 log files scanned clean** against injected credentials/auth material |
+
+Downloaded ZIP contains exactly results.json and scan.json. ZIP SHA256 **0a8682bf0939c1b7fa575408aaf3e63ffc99626c50f049ebb5cd388203ef045f** matches GitHub artifact metadata. Result SHA256 **bd2ffcae105667601d760a4e3f00d6719fd046123727f92418929c19ce4141f1** matches the scan manifest. Independent inspection verifies exact title/outcome/retry records, UI/API counts, execution flags, reset/seed, resource absence, publication decisions and log security. Existing scanner, compact allowlist, request-only API trace policy, private diagnostics, sanitized staging/re-scan, workflow publication and teardown contracts remain unchanged. No credentials, tokens or runtime IDs enter tags, titles or oracle data.
 
 ## 17. Risks/limitations
 
 New requirements 006/007/008 remain Proposed; existing candidates 002/003/004 remain Requires confirmation. Pinned seeded page partitions are controlled-environment oracles, not a production sort guarantee. One single-brand and one leaf-category/brand intersection do not prove multi-brand, hierarchy, price/sort/search combinations or pagination retention/reset under filters. Price keyboard interaction and visual disabled boundary semantics were inspected but not automated. Image verification checks identity/load, not screenshot similarity. Existing one-SUT, one-worker, zero-retry/reset/seed and no overlapping manual-run constraints remain.
+
+One initial local baseline checkout timeout remains part of the evidence history. Its isolated follow-up, final local full run and hosted full run passed without assertion, action, timeout or retry-setting changes; the underlying timing-overrun cause was not established. This is not hidden by automatic retries or represented as a first-run pass.
 
 ## 18. Reviewer guide
 
@@ -147,4 +164,4 @@ Review separate R13 closure and unchanged historical prefix, then P14/I14/O14 an
 
 ## 20. Release status
 
-Discovery, implementation, isolated/catalog/cart validation and final full 22/22 complete; hosted evidence and OPEN PR delivery pending. Release 13 is CLOSED. Planned delivery is an OPEN PR against main, with no automatic merge and no Release 15 work.
+**Release 14 implementation and validation complete; ready for human review through an OPEN PR against main.** Four catalog increments delivered through one strengthened and three new UI tests, preserving all nineteen baseline scenarios. Catalog 8/8, cart 4/4, isolated increments, strict types, security 3/3, final local/hosted 22/22, artifact/log integrity, teardown and diff checks pass. Source/runtime-backed proposed requirements await human approval. Initial local timeout and coverage limits remain explicit. Release 13 is CLOSED. Delivery stops before merge; Release 15 is not started.
