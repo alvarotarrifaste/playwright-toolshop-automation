@@ -110,11 +110,27 @@ Public compact evidence scanned clean; raw HTML withheld as sensitive-or-uninspe
 
 ## 15. CI/security evidence
 
-Local CI evidence security checks **3/3 PASS**. Hosted full run, artifact scans, security audit and teardown evidence pending. No workflow, scanner or SUT image/source pin changes.
+Local CI evidence security checks **3/3 PASS**. Hosted [run 40516438507](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40516438507), job **122231442208**, at **146584ad4a1816f39f66bd77b8f66e57aefbcfda**: **SUCCESS**. Later delivery edits only record this evidence in documentation.
+
+| Hosted evidence | Result |
+| --- | --- |
+| Strict TypeScript | **PASS** |
+| CI evidence security checks | **3/3 PASS** |
+| Fresh controlled provisioning | **PASS**, new ignored env file generated from pinned seeder with dedicated locking credentials |
+| Full controlled suite | **19/19 PASS — 16 UI + 3 API** |
+| Result integrity | All 19 exact repository titles; expected=19; unexpected/flaky/skipped/global errors=0 |
+| Execution | Configured/actual worker=1; retries=[0]; every result passed at retry 0; forbidOnly=true |
+| Reset/seed | **PASS**, confirmed by compact evidence |
+| Teardown | **PASS**, logs confirm controlled containers/networks/volumes absent |
+| Publication | Only sanitized **controlled-results**, artifact **12740176567**, **1305 bytes**, 14-day retention |
+| Scan decisions | Summary clean; raw HTML withheld as sensitive-or-uninspectable; diagnostic metadata clean, no failure upload on green run |
+| Public log audit | **23 log files scanned clean**, including both new locking credential values |
+
+Downloaded artifact contains exactly results.json and scan.json. ZIP SHA256 **31f724f5239ce7f6475e0c15cc96709aced2689e96760909fd7895387834b9ee** matches GitHub metadata. Result SHA256 **579c5fc60a8d80357ef0c0e40cf40df96ade2ef97ef2c48572ec76adae3abaa4** matches the scan manifest. Independent inspection verifies outcomes/titles, same execution flags, resource absence, raw-HTML withholding, public log security and artifact hashes. Fresh CI provisioning complements the local existing-file upgrade validation. No workflow, scanner, security-test or SUT image/source pin changes.
 
 ## 16. Risks/limitations
 
-Locking intentionally leaves one dedicated customer locked until reset/teardown; direct reruns without reset are not supported. No overlapping manual use, other workers or resets; unchanged one-SUT/one-worker contract. Custom injected identities must exist, be enabled and remain distinct. No timed unlock or administrator remediation claim. UI logout does not revoke the captured JWT in the pinned implementation; explicit API logout is separately verified. Revocation coverage is immediate same-token readback on one controlled node, not a full token/session family or distributed-cache security audit. New API logout requirement remains Proposed pending human review.
+Locking intentionally leaves one dedicated customer locked until reset/teardown; direct reruns without reset are not supported. No overlapping manual use, other workers or resets; unchanged one-SUT/one-worker contract. Custom injected identities must exist, be enabled and remain distinct. No timed unlock or administrator remediation claim. Locking assertions concern subsequent login, not revocation of pre-existing tokens. UI logout does not revoke the captured JWT in the pinned implementation; explicit API logout is separately verified. Revocation coverage is immediate same-token readback on one controlled node, not a full token/session family or distributed-cache security audit. New API logout requirement remains Proposed pending human review.
 
 ## 17. Reviewer guide
 
@@ -132,4 +148,4 @@ Review separate R12 closure first. Compare P13/I13/O13 and exact 401/423 sequenc
 
 ## 19. Release status
 
-Discovery, implementation, isolated/auth/recovery/full validation and local security/teardown complete. Hosted evidence and OPEN PR delivery pending. Release 12 is CLOSED. Planned delivery is an OPEN PR against main, with no automatic merge or Release 14 work.
+**Release 13 implementation and validation complete; ready for human review through an OPEN PR against main.** Two focused API scenarios added and existing UI logout strengthened; all seventeen baseline scenarios remain green. Final suite **19: 16 UI + 3 API**. Strict types, isolated cases, auth 7/7, original API regression, account isolation/reset recovery, local/hosted 19/19, security 3/3, scanned public evidence, teardown and diff checks PASS. Approved REQ-AUTH-005 is implemented; REQ-API-AUTH-002 remains Proposed for human review, and existing Requires confirmation requirements are unchanged. Release 12 is CLOSED. Delivery stops before automatic merge; Release 14 is not started.
