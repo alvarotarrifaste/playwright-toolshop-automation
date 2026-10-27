@@ -87,6 +87,8 @@ Retain UI/API domain layout, five composed Page Objects, direct imports and asse
 
 README becomes the concise project entry point. New [solution-architecture-and-defense.md](solution-architecture-and-defense.md) is the single primary technical deep dive covering architecture, strategy, Docker, exact CI chain, Git delivery, durable decisions, debugging/taxonomy, limitations and defense prompts. Requirements/catalogue become authoritative current-state references. Historical release packages/ADRs retain their original truth, with only R15 closure appended.
 
+Final changed files are six Markdown documents: README.md; docs/requirements.md; docs/test-catalogue.md; the appended docs/release-15-summary.md; and the new docs/solution-architecture-and-defense.md and docs/release-16-summary.md. Independent comparison against merged R15 confirms all production tests, Page Objects, scripts, workflow, configuration, dependencies and environment pins unchanged. The audit also verified unique requirement/test IDs, exact titles/status mappings, existing branch refs, UTF-8 and local file/heading links; git diff --check passed. No functional assertion was removed.
+
 ## 13. README final state
 
 Purpose/e-commerce, Playwright/TypeScript stack, 26-case scope, directory ownership, controlled setup/lifecycle, eight selections, high-level CI/security and four documentation links. No requirement matrix, interview script, individual CI/PR/hash diary or Docker tutorial. Guest/authenticated oracle distinction is concise. v1.0 is a review candidate, not declared merged/frozen.
@@ -129,7 +131,13 @@ An explicit final reset restored the exact selected pre-validation snapshot: car
 
 ## 19. CI/security evidence
 
-After debug restoration, strict typecheck and existing security self-tests **3/3 PASS**. Hosted full run/artifact/log audit pending. Scanner, allowlist, raw private diagnostics, fixed staging/re-scan and workflow publication stay unchanged. No deliberate fault is dispatched to public CI.
+After debug restoration, strict typecheck and existing security self-tests **3/3 PASS**, locally and hosted. [Hosted manual run 40559549739](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40559549739), job **122384574762**, completed **success** at **cf7cf7a6c81748f39c8fa39087afd3ba4ac38aaa** on release/16-portfolio-stabilization. Every required setup, types/security, Docker/QEMU, pinned provision/start/readiness, controlled tests, teardown, scan and sanitized-upload step succeeded. No deliberate fault was dispatched to public CI.
+
+Independently downloaded results verified **26/26 — 23 UI + 3 API**, all exact unchanged titles, expected=26, unexpected=0, flaky=0, skipped=0, globalErrors=0, actual/configured worker=1, retries=[0], forbid-only/reset confirmed, one passed retry-0 result per case. Teardown resource absence is in the logs. **23 public log files scanned clean** against injected values/encoded variants/auth patterns.
+
+Only **controlled-results** was uploaded: artifact **12760531267**, **1531 bytes**, expires 2026-11-10. ZIP SHA256 **e253e401ba08bbf45b66167ef7c2547c3b8b5701eafda386b3eb642997a76972** matches GitHub metadata. Compact results SHA256 **519c3e87a9f8282c02891dab55b336b23979b8c1ce6bb4bae6988420c9920bc6** matches the manifest and the R15 baseline compact result. Archive contains exactly results.json and scan.json; extracted summary scans clean. HTML withheld as sensitive-or-uninspectable; diagnostics metadata clean and failure-only upload skipped on success. Scanner/allowlist/private capture/staging/re-scan/publication code remains unchanged.
+
+The hosted SHA includes the consolidated docs and all validated code. A subsequent documentation-only evidence commit records these completed results and the changed-file inventory; no production/test/config/workflow bytes changed after hosted validation. The PR event will naturally start a fresh run; it is separate from this already-audited manual run. No post-merge R16 result or human freeze is claimed.
 
 ## 20. Remaining limitations
 
@@ -154,4 +162,4 @@ Review separate R15 closure and preserved historical prefix. Confirm production 
 
 ## 23. Release status
 
-Investigation, controlled debugging, maintainability review, documentation consolidation, all subsets, both full regressions and reset/resource recovery complete; hosted evidence in progress. Baseline remains 26. R15 CLOSED. Delivery will stop at an OPEN PR; Portfolio v1.0 requires human review/merge. No Release 17 is started or mandatory.
+**Release 16 is review-ready.** Investigation, four restored controlled debugging exercises, maintainability/config/locator review, documentation consolidation, all seven subsets, both planned full regressions, reset/resource recovery, hosted full CI and public evidence integrity/security checks are complete. Baseline remains **26 = 23 UI + 3 API** with unchanged production code and assertions. R15 CLOSED; all four scoped L15 approvals reconciled; five older candidates remain Requires confirmation. Delivery stops at an **OPEN PR**. Portfolio v1.0 remains a candidate requiring final human review, technical explanation and merge; no freeze/tag, automatic merge or Release 17 is performed.
