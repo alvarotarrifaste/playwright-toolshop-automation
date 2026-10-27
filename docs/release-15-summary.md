@@ -162,7 +162,7 @@ Review the independently verified R14 closure first. Compare P15/I15/O15 and new
 
 ## 22. Post-merge human closure
 
-Original sections 1–21, including the initial local failure and Proposed history, remain unchanged. Human leadership supplied closure for Release 16 after [PR #19](https://github.com/alvarotarrifaste/playwright-toolshop-automation/pull/19) merged at **8b9424eb5f7ba9956ce0013d795d373aaa24b8f7**. [Main push run 40553420592](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40553420592), job **122362968527**, independently verified **completed/success** at that SHA.
+Original sections 1–21, including the initial local failure and Proposed history, remain unchanged. Human leadership supplied this Release 15 closure during Release 16 after [PR #19](https://github.com/alvarotarrifaste/playwright-toolshop-automation/pull/19) merged at **8b9424eb5f7ba9956ce0013d795d373aaa24b8f7**. [Main push run 40553420592](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40553420592), job **122362968527**, independently verified **completed/success** at that SHA.
 
 | Verified post-merge evidence | Result |
 | --- | --- |
