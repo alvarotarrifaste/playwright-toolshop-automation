@@ -165,3 +165,23 @@ Review separate R13 closure and unchanged historical prefix, then P14/I14/O14 an
 ## 20. Release status
 
 **Release 14 implementation and validation complete; ready for human review through an OPEN PR against main.** Four catalog increments delivered through one strengthened and three new UI tests, preserving all nineteen baseline scenarios. Catalog 8/8, cart 4/4, isolated increments, strict types, security 3/3, final local/hosted 22/22, artifact/log integrity, teardown and diff checks pass. Source/runtime-backed proposed requirements await human approval. Initial local timeout and coverage limits remain explicit. Release 13 is CLOSED. Delivery stops before merge; Release 15 is not started.
+
+## 21. Post-merge human closure
+
+Original sections 1–20, including Proposed history and the initial local timeout, remain unchanged. Human leadership closure supplied for Release 15 records [PR #18](https://github.com/alvarotarrifaste/playwright-toolshop-automation/pull/18) merged at **0209bff171c07320a627e4a83a04c9ef6982d5e8**. [Main post-merge run 40535132019](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40535132019) was independently verified completed/success at that exact SHA (push to main), job **122298215078**.
+
+| Verified post-merge evidence | Result |
+| --- | --- |
+| Controlled suite | **22/22 PASS — 19 UI + 3 API**, exact titles and one passed retry-0 result each |
+| Strict TypeScript | **PASS** |
+| CI evidence security checks | **3/3 PASS** |
+| Execution | **One worker, zero retries, forbid-only** |
+| Reset/seed | **PASS** |
+| Teardown | **PASS**, logs confirm controlled containers/networks/volumes absent |
+| Sanitized publication | Only **controlled-results**, artifact **12748817506**, 1399 bytes |
+| Raw HTML | **Withheld** as sensitive-or-uninspectable; failure upload skipped on green run |
+| Public log audit | **23 files clean** |
+
+ZIP SHA256 **9bccf4b1b24af093634beb43c7f459a80e308c66387c2890263925f8d99611fc** matches GitHub metadata; results SHA256 **bd2ffcae105667601d760a4e3f00d6719fd046123727f92418929c19ce4141f1** matches the manifest.
+
+**L14 — human-approved REQ-CATALOG-006/007/008**, scope and assertions unchanged. **REQ-CATALOG-004 remains Requires confirmation.** Approval is separate from source/runtime evidence and passing automation. **Release 14 CLOSED.**

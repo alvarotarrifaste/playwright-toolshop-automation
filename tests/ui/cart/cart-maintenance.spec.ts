@@ -89,3 +89,47 @@ test('visitor removes a cart product and sees the remaining product and recalcul
   await expect(cartPage.linePrices).toHaveText(['$12.01']);
   await expect(cartPage.total).toHaveText('$12.01');
 });
+
+test('visitor removes the final cart item and sees a persisted empty cart without checkout controls', { tag: ['@ui', '@cart', '@regression'] }, async ({ page }) => {
+  const catalog = new CatalogPage(page);
+  const details = new ProductDetailsPage(page);
+  const cart = new CartPage(page);
+  await catalog.goto();
+  await catalog.search('Combination Pliers');
+  await expect(catalog.searchCompleted).toBeVisible();
+  await catalog.openProduct('Combination Pliers');
+  const created = page.waitForResponse(response => response.request().method() === 'POST'
+    && new URL(response.url()).pathname === '/carts');
+  await details.addToCart();
+  const creation = await created;
+  const ownedCart = await creation.json() as { id: string };
+  expect(typeof ownedCart.id === 'string' && ownedCart.id.length > 0, 'Own cart identity is generated').toBe(true);
+  await cart.open();
+  await expect(cart.productNames).toHaveText(['Combination Pliers']);
+  await expect(cart.productQuantities).toHaveValue('1');
+  await expect(cart.total).toHaveText('$14.15');
+
+  await cart.removeProduct('Combination Pliers');
+  await expect(cart.emptyCartMessage).toBeVisible();
+  await expect(cart.productNames).toHaveCount(0);
+  await expect(cart.productQuantities).toHaveCount(0);
+  await expect(cart.total).toHaveCount(0);
+  await expect(cart.proceedButton).toHaveCount(0);
+  await expect(cart.cartQuantityBadge).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => sessionStorage.getItem('cart_quantity')), { message: 'Empty cart quantity is zero' }).toBe('0');
+  expect(await page.evaluate(id => sessionStorage.getItem('cart_id') === id, ownedCart.id), 'Empty cart identity is retained').toBe(true);
+
+  const read = page.waitForResponse(response => response.request().method() === 'GET'
+    && new URL(response.url()).pathname === `/carts/${ownedCart.id}`);
+  await page.reload();
+  const response = await read;
+  expect(response.status(), 'Empty cart still exists on the backend').toBe(200);
+  const persisted = await response.json() as { id: string; cart_items: unknown[] };
+  expect(persisted.id === ownedCart.id, 'Readback is the same owned empty cart').toBe(true);
+  expect(persisted.cart_items).toEqual([]);
+  await expect(cart.emptyCartMessage).toBeVisible();
+  await expect(cart.productNames).toHaveCount(0);
+  await expect(cart.total).toHaveCount(0);
+  await expect(cart.proceedButton).toHaveCount(0);
+  await expect(cart.cartQuantityBadge).toHaveCount(0);
+});

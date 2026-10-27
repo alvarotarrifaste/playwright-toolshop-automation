@@ -62,3 +62,42 @@ test('authenticated user adds a product to cart and sees the selected product an
   await expect(cartPage.productQuantities).toHaveValue('1');
   await expect(loginPage.userMenu).toBeVisible();
 });
+
+test('visitor adds the same product again and sees one saved cart line with accumulated quantity and totals', { tag: ['@ui', '@cart', '@regression'] }, async ({ page }) => {
+  const catalog = new CatalogPage(page);
+  const details = new ProductDetailsPage(page);
+  const cart = new CartPage(page);
+
+  await catalog.goto();
+  await catalog.search('Combination Pliers');
+  await expect(catalog.searchCompleted).toBeVisible();
+  await catalog.openProduct('Combination Pliers');
+  await expect(details.quantity).toHaveValue('1');
+  await details.addToCart();
+  await cart.open();
+  await expect(cart.productNames).toHaveText(['Combination Pliers']);
+  await expect(cart.productQuantities).toHaveValue('1');
+  await expect(cart.total).toHaveText('$14.15');
+
+  await catalog.goto();
+  await catalog.search('Combination Pliers');
+  await expect(catalog.searchCompleted).toBeVisible();
+  await catalog.openProduct('Combination Pliers');
+  await expect(details.quantity).toHaveValue('1');
+  await details.addToCart();
+  await cart.open();
+  await expect(cart.productNames).toHaveText(['Combination Pliers']);
+  await expect(cart.productQuantities).toHaveCount(1);
+  await expect(cart.productQuantities).toHaveValue('2');
+  await expect(cart.productPrices).toHaveText(['$14.15']);
+  await expect(cart.linePrices).toHaveText(['$28.30']);
+  await expect(cart.total).toHaveText('$28.30');
+  await expect(cart.cartQuantityBadge).toHaveText('2');
+
+  await page.reload();
+  await expect(cart.productNames).toHaveText(['Combination Pliers']);
+  await expect(cart.productQuantities).toHaveCount(1);
+  await expect(cart.productQuantities).toHaveValue('2');
+  await expect(cart.linePrices).toHaveText(['$28.30']);
+  await expect(cart.total).toHaveText('$28.30');
+});

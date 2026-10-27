@@ -12,18 +12,18 @@ A QA automation portfolio project covering the Toolshop shopping journey with Pl
 
 ## Current Coverage
 
-**22 independent scenarios: 19 UI + 3 API**, running through the Chromium project.
+**26 independent scenarios: 23 UI + 3 API**, running through the Chromium project.
 
 | Domain | Coverage | Scenarios |
 | --- | --- | --- |
 | Authentication | Successful/invalid login, logout with post-logout route protection, fresh protected account route | 4 UI |
 | Catalog | Matching/empty search, richer product details, category/brand filtering and clearing, filter intersection, pagination | 8 UI |
-| Cart | Anonymous/authenticated add, saved quantity update, selected-item removal | 4 UI |
-| Checkout | Anonymous identity choice and authenticated billing progression | 2 UI |
-| Purchase | Authenticated COD order, confirmation, cart clearing, persisted invoice readback | 1 UI |
+| Cart | Anonymous/authenticated add, repeated-add merging, saved quantity changes, selected/final-item removal and empty state | 6 UI |
+| Checkout | Anonymous/authenticated identity and billing progression, required-city validation | 3 UI |
+| Purchase | Authenticated and guest COD orders, confirmation/cart clearing; authenticated invoice readback | 2 UI |
 | API authentication | Anonymous/authenticated current-customer access, customer locking, explicit API logout invalidation | 3 API |
 
-Purchase coverage checks initial `AWAITING_FULFILLMENT` state. Settlement, shipment, fulfillment and email delivery are outside this scope. See [requirements](docs/requirements.md) and the [test catalogue](docs/test-catalogue.md) for approval states and coverage boundaries.
+Authenticated purchase coverage checks initial `AWAITING_FULFILLMENT` state. Settlement, shipment, fulfillment and email delivery are outside this scope. See [requirements](docs/requirements.md) and the [test catalogue](docs/test-catalogue.md) for approval states and coverage boundaries.
 
 ## Architecture
 
@@ -33,7 +33,7 @@ tests/
     authentication/authentication.spec.ts
     catalog/{search,filtering,browsing}.spec.ts
     cart/{add-to-cart,cart-maintenance}.spec.ts
-    checkout/{identity-billing,purchase}.spec.ts
+    checkout/{identity-billing,purchase,guest-purchase}.spec.ts
   api/
     authentication/{authorization,account-security}.spec.ts
 pages/
@@ -61,7 +61,7 @@ Folders separate execution layers and functional domains. Each test has native P
 | --- | --- |
 | Layer | Exactly one of `@ui`, `@api` |
 | Primary domain | Exactly one of `@auth`, `@catalog`, `@cart`, `@checkout` |
-| Regression | All 22 scenarios have `@regression` |
+| Regression | All 26 scenarios have `@regression` |
 | Smoke | Five critical paths also have `@smoke`: UI login, matching search, anonymous add-to-cart, COD purchase and API authorization |
 
 Purchase belongs to checkout; API authorization belongs to authentication. Tags describe execution selection and do not confer requirement approval or priority. Full regression is authoritative.
@@ -91,14 +91,14 @@ Start the environment once, run the required subsets, then tear it down:
 
 | Command | Selection |
 | --- | --- |
-| `npm run test:controlled` | All 22 scenarios |
-| `npm run test:ui` | 19 UI scenarios |
+| `npm run test:controlled` | All 26 scenarios |
+| `npm run test:ui` | 23 UI scenarios |
 | `npm run test:api` | 3 API scenarios |
 | `npm run test:smoke` | 5 critical paths |
 | `npm run test:auth` | 4 UI + 3 API authentication scenarios |
 | `npm run test:catalog` | 8 catalog scenarios |
-| `npm run test:cart` | 4 cart scenarios |
-| `npm run test:checkout` | 3 checkout/purchase scenarios |
+| `npm run test:cart` | 6 cart scenarios |
+| `npm run test:checkout` | 5 checkout/purchase scenarios |
 
 Every subset delegates to `test:controlled` using Playwright `--grep`. Startup is explicit (`sut:up`); every invocation checks readiness and resets/seeds. The helper enforces Chromium, one worker, zero retries and forbid-only. Those command-line settings override the general defaults in `playwright.config.ts`, including direct-CI retries. CI uses this same helper through the evidence wrapper.
 
@@ -116,7 +116,7 @@ On Windows, use `npm.cmd` / `npx.cmd` if PowerShell blocks the `.ps1` launchers.
 
 ## CI/CD
 
-[GitHub Actions](.github/workflows/playwright.yml) runs on PRs targeting `main`, pushes to `main`, and manual dispatch. It installs locked dependencies, runs strict typecheck and three evidence security checks, starts the pinned environment and executes all 22 scenarios. Teardown runs even after test failure and verifies resource removal.
+[GitHub Actions](.github/workflows/playwright.yml) runs on PRs targeting `main`, pushes to `main`, and manual dispatch. It installs locked dependencies, runs strict typecheck and three evidence security checks, starts the pinned environment and executes all 26 scenarios. Teardown runs even after test failure and verifies resource removal.
 
 The evidence wrapper preserves test failures while keeping raw output private. The scanner stages and re-scans approved bytes before publishing `controlled-results` (14-day retention). HTML and failure diagnostics are published only when inspectable and clean; opaque or sensitive content is withheld. Local reports/traces can contain credentials or session data and require review before sharing. API tracing is disabled in both request-only authentication specs.
 
@@ -134,7 +134,11 @@ The evidence wrapper preserves test failures while keeping raw output private. T
 | Phase | Focus | Status |
 | --- | --- | --- |
 | Phase 1 | Foundation, controlled execution, secure CI and functional purchase flow (R1–R11) | Complete |
-| Phase 2 | Portfolio architecture and expanded UI/API coverage (R12 onward) | In progress |
+| Phase 2 | Portfolio architecture and selected UI/API coverage (R12–R15) | In progress |
 | Phase 3 | Reliability, debugging and engineering ownership | Planned |
+
+| Release | Branch | Incremental value |
+| --- | --- | --- |
+| R15 — Cart & Checkout Edge Coverage | `release/15-cart-checkout-edge-coverage` | Selected cart lifecycle and alternate checkout risks before portfolio stabilization. |
 
 [Release 12 architecture package](docs/release-12-summary.md) documents organization, preserved behavior and validation. [Release 11](docs/release-11-summary.md#16-post-merge-human-closure) records human-approved purchase closure. Historical investigations and release evidence remain under `docs/`.
