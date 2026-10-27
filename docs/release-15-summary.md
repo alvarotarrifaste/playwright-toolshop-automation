@@ -113,7 +113,7 @@ Strict TypeScript **PASS**; discovery **26 tests in 11 files**; CI evidence secu
 
 **Final controlled full regression: 26/26 PASS — 23 UI + 3 API**, 66.9s. All exact repository titles match; each has one passed retry-0 result. Expected=26, unexpected/flaky/skipped/global errors=0, configured/actual worker 1, configuredRetries=[0], forbidOnly=true, resetSeedConfirmed=true.
 
-Initial local full run had **25/26**, with the unchanged anonymous add-to-cart baseline timing out while filling the catalog Search input during navigation, before any cart action. All four new cases passed. Evidence is preserved privately; scan withheld raw HTML/failure diagnostics. The affected baseline passed independently **1/1** and a separate full invocation passed **26/26**. No assertion/action, timeout or retry setting changed. This is a local baseline timing signal, not an established R15 regression or resolved root cause; deliberate investigation remains R16 scope. It is not relabeled as a first-run pass.
+Initial local full run had **25/26**, with the unchanged anonymous add-to-cart baseline timing out while filling the catalog Search input during navigation, before any cart action. All four new cases passed. Initial compact failure results and scan decisions are retained privately; scan withheld raw HTML/failure diagnostics. The affected baseline passed independently **1/1** and a separate full invocation passed **26/26**. No assertion/action, timeout or retry setting changed. This is a local baseline timing signal, not an established R15 regression or resolved root cause; deliberate investigation remains R16 scope. It is not relabeled as a first-run pass.
 
 Independent comparison verifies every baseline test body/assertion unchanged, including authenticated purchase readback. Removing additive Page Object members restores original files exactly. Catalog/auth/API, runner/config, aliases/dependencies, workflow/scanner/security tests, template/exclusions and pins are unchanged. Tags: 26, 23 UI/3 API, cart6/checkout5/smoke5. Documentation file links resolve; changed source/docs contain no injected credentials; git diff --check PASS.
 
@@ -121,7 +121,22 @@ Guest-only audit and full audit independently confirm the persisted guest row/li
 
 ## 17. CI/security evidence
 
-Local security checks **3/3 PASS**. Hosted run/artifact/log integrity evidence pending. Workflow should remain unchanged; no discovery found a workflow execution issue.
+Local security checks **3/3 PASS**. Hosted [run 40550642319](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40550642319), job **122353118033**, at **9e7e8c38d886ddcf60a68f1a5c7e5e75e1d53e9c**: **completed/success**. Subsequent delivery changes only record evidence in documentation.
+
+| Hosted evidence | Result |
+| --- | --- |
+| Strict TypeScript | **PASS** |
+| CI evidence security checks | **3/3 PASS** |
+| Full controlled suite | **26/26 PASS — 23 UI + 3 API** |
+| Result integrity | All 26 exact repository titles; expected=26; unexpected/flaky/skipped/global errors=0 |
+| Execution contract | Configured/actual worker 1; retries [0]; each test passed at retry 0; forbidOnly=true |
+| Reset/seed | **PASS** |
+| Teardown | **PASS**, logs confirm controlled containers/networks/volumes absent |
+| Publication | Only sanitized **controlled-results**, artifact **12754554324**, **1531 bytes**, 14-day retention |
+| Scan decisions | Summary clean; HTML withheld as sensitive-or-uninspectable; diagnostic metadata clean, no failure upload on green run |
+| Public log audit | **23 files scanned clean** |
+
+Downloaded ZIP contains exactly results.json and scan.json. ZIP SHA256 **1f8bdabe173c770a86e08b91275da1a0920ed2d84090d0e44fce8882ecf9fe13** matches GitHub metadata; results SHA256 **519c3e87a9f8282c02891dab55b336b23979b8c1ce6bb4bae6988420c9920bc6** matches the scan manifest. Independent verification covers exact outcomes/titles, layer counts, flags/reset, resource absence, publication handling and public log security. Workflow, scanner/security tests, compact allowlist, staged-byte re-scan and private diagnostics remain unchanged; no execution issue required a pipeline modification.
 
 ## 18. Risks/limitations
 
@@ -143,4 +158,4 @@ Review the independently verified R14 closure first. Compare P15/I15/O15 and new
 
 ## 21. Release status
 
-Discovery/implementation, isolated/cart/checkout/final full 26/26, operational resource audits and reset recovery complete; hosted evidence and OPEN PR delivery pending. Release 14 is CLOSED. Delivery will be an OPEN PR against main, without merging or beginning Release 16.
+**Release 15 implementation and validation complete; ready for human review through an OPEN PR against main.** Four distinct UI edges/alternate paths, final suite 26 (23 UI + 3 API), all 22 baseline cases unchanged. Isolated scenarios, cart 6/6, checkout 5/5, final local/hosted 26/26, strict types, security 3/3, resource/reset recovery, scanned public evidence, teardown and diff checks PASS. Four requirements remain Proposed with explicit empty-wording/guest-oracle limits. Initial local baseline timeout remains recorded for later reliability investigation without a timeout/retry change. Release 14 is CLOSED. This is the final functional-coverage increment before Portfolio v1.0 stabilization; delivery stops before merge and Release 16 is not started.
