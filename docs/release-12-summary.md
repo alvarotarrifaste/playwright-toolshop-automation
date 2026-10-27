@@ -161,3 +161,19 @@ Review the separate R11 closure first, then the rename-aware diff. Check all eig
 ## 16. Release status
 
 **Release 12 implementation and validation complete; ready for human review through an OPEN PR against main.** Typecheck, discovery/imports, exact functional equivalence, every subset, full 17/17 regression, hosted 17/17, three security checks, artifact/log audit, teardown and diff checks pass. No new functional scenario or framework abstraction is introduced. REQ-CATALOG-005 approval is recorded from the explicit human decision during this release; other pending/deferred statuses remain unchanged. Release 11 is CLOSED by explicit human approval. Delivery stops before human merge. Release 13 is not started.
+
+## 17. Post-merge human closure
+
+This separate record preserves original sections 1–16 and their pre-merge validation history. Human leadership supplied closure for Release 13 Step 0 after [PR #16](https://github.com/alvarotarrifaste/playwright-toolshop-automation/pull/16) merged. Merge commit: **46551731c1172af944286778cab3a165a968cd4c**. Post-merge [run 40412377999](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40412377999) is the supplied closure evidence.
+
+| Post-merge evidence | Result |
+| --- | --- |
+| Controlled suite | **17/17 PASS — 16 UI + 1 API** |
+| Strict TypeScript | **PASS** |
+| CI evidence security checks | **3/3 PASS** |
+| Execution | **One worker, zero retries** |
+| Reset/seed and teardown | **PASS** |
+| Sanitized artifact | **controlled-results**, artifact **12692074847** |
+| Raw HTML | **Withheld** |
+
+**Release 12 CLOSED.** This architecture increment preserved all seventeen functional scenarios; human closure is recorded separately from automation evidence.
