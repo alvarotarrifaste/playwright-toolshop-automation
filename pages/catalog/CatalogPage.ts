@@ -10,6 +10,7 @@ export class CatalogPage {
   readonly categoryCheckboxes: Locator;
   readonly selectedCategoryCheckboxes: Locator;
   readonly filterCompleted: Locator;
+  readonly brandCheckboxes: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -21,6 +22,7 @@ export class CatalogPage {
     this.categoryCheckboxes = page.locator('input[name="category_id"]');
     this.selectedCategoryCheckboxes = page.locator('input[name="category_id"]:checked');
     this.filterCompleted = page.locator('[data-test="filter_completed"]');
+    this.brandCheckboxes = page.locator('input[name="brand_id"]');
   }
 
   async goto(): Promise<void> {
@@ -46,5 +48,29 @@ export class CatalogPage {
 
   async clearCategory(name: string): Promise<void> {
     await this.categoryCheckbox(name).uncheck();
+  }
+
+  brandCheckbox(name: string): Locator {
+    return this.brandCheckboxes.and(this.page.getByRole('checkbox', { name, exact: true }));
+  }
+
+  async selectBrand(name: string): Promise<void> {
+    await this.brandCheckbox(name).check();
+  }
+
+  async clearBrand(name: string): Promise<void> {
+    await this.brandCheckbox(name).uncheck();
+  }
+
+  async goToNextPage(): Promise<void> {
+    await this.page.getByRole('button', { name: 'Next', exact: true }).click();
+  }
+
+  async goToPreviousPage(): Promise<void> {
+    await this.page.getByRole('button', { name: 'Previous', exact: true }).click();
+  }
+
+  async goToPage(pageNumber: number): Promise<void> {
+    await this.page.getByRole('button', { name: `Page-${pageNumber}`, exact: true }).click();
   }
 }

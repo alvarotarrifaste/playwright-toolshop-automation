@@ -36,4 +36,14 @@ test('visitor opens a product from search results and views its details', { tag:
   await expect(page).toHaveURL(/\/product\/.+/);
   await expect(productDetailsPage.productName).toHaveText('Combination Pliers');
   await expect(productDetailsPage.addToCartButton).toBeVisible();
+  await expect(productDetailsPage.unitPrice).toHaveText('14.15');
+  await expect(productDetailsPage.category).toHaveText('Pliers');
+  await expect(productDetailsPage.brand).toHaveText('ForgeFlex Tools');
+  await expect(productDetailsPage.description).toBeVisible();
+  await expect(productDetailsPage.description).toContainText('gripping, bending, and cutting wire');
+  await expect(productDetailsPage.productImage).toBeVisible();
+  await expect(productDetailsPage.productImage).toHaveAttribute('alt', 'Combination Pliers');
+  await expect(productDetailsPage.productImage).toHaveAttribute('src', /\/pliers01\.avif$/);
+  await expect.poll(() => productDetailsPage.productImage.evaluate((image: HTMLImageElement) =>
+    image.complete && image.naturalWidth > 0), { message: 'Selected product image loads successfully' }).toBe(true);
 });
