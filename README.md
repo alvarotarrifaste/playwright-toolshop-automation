@@ -1,41 +1,27 @@
 # Playwright Toolshop Automation
 
-A QA automation portfolio project covering the Toolshop shopping journey with Playwright and strict TypeScript. UI and API tests run against a pinned Docker environment with deterministic reset/seed, giving local development and GitHub Actions the same controlled execution model.
+A QA automation portfolio for a representative **e-commerce application**: browsing products, managing a cart, checking out, and protecting customer access. Built with **Playwright Test and strict TypeScript**, running against a pinned Docker Toolshop environment locally and in GitHub Actions.
 
-## Solution Overview
+**Portfolio v1.0 review candidate · 26 scenarios · 23 UI + 3 API · Chromium**
 
-- Playwright Test for browser and request-level automation.
-- Domain-organized UI/API tests and focused Page Objects.
-- Pinned Toolshop 2.5 source and image digests, managed through one TypeScript lifecycle script.
-- Independent scenarios, freshly seeded state before each controlled invocation.
-- GitHub Actions full regression with scanned, sanitized public evidence and verified teardown.
+## Coverage
 
-## Current Coverage
-
-**26 independent scenarios: 23 UI + 3 API**, running through the Chromium project.
-
-| Domain | Coverage | Scenarios |
+| Domain | Representative coverage | Scenarios |
 | --- | --- | --- |
-| Authentication | Successful/invalid login, logout with post-logout route protection, fresh protected account route | 4 UI |
-| Catalog | Matching/empty search, richer product details, category/brand filtering and clearing, filter intersection, pagination | 8 UI |
-| Cart | Anonymous/authenticated add, repeated-add merging, saved quantity changes, selected/final-item removal and empty state | 6 UI |
-| Checkout | Anonymous/authenticated identity and billing progression, required-city validation | 3 UI |
-| Purchase | Authenticated and guest COD orders, confirmation/cart clearing; authenticated invoice readback | 2 UI |
-| API authentication | Anonymous/authenticated current-customer access, customer locking, explicit API logout invalidation | 3 API |
+| Authentication | Valid/invalid login, logout, protected account route | 4 UI |
+| Catalog | Search, product information/image, category/brand filters, intersection, pagination | 8 UI |
+| Cart | Anonymous/authenticated add, repeated-add merging, saved quantity/totals, selected/final-item removal | 6 UI |
+| Checkout & purchase | Identity/billing progression, required-city blocking, authenticated/guest COD orders and cart clearing | 5 UI |
+| API authentication | Anonymous/customer authorization, account locking, explicit token invalidation | 3 API |
 
-Authenticated purchase coverage checks initial `AWAITING_FULFILLMENT` state. Settlement, shipment, fulfillment and email delivery are outside this scope. See [requirements](docs/requirements.md) and the [test catalogue](docs/test-catalogue.md) for approval states and coverage boundaries.
+Authenticated purchase includes independent persisted invoice readback. Guest purchase checks order acceptance and independent cart deletion; its invoice persistence is corroborated by operational audits outside the automated assertion path. Settlement, shipping, email delivery and exhaustive coverage are outside v1.0.
 
 ## Architecture
 
 ```text
 tests/
-  ui/
-    authentication/authentication.spec.ts
-    catalog/{search,filtering,browsing}.spec.ts
-    cart/{add-to-cart,cart-maintenance}.spec.ts
-    checkout/{identity-billing,purchase,guest-purchase}.spec.ts
-  api/
-    authentication/{authorization,account-security}.spec.ts
+  ui/{authentication,catalog,cart,checkout}/
+  api/authentication/
 pages/
   authentication/LoginPage.ts
   catalog/{CatalogPage,ProductDetailsPage}.ts
@@ -46,99 +32,83 @@ scripts/
   ci-evidence.ts
   ci-evidence.test.ts
 environment/toolshop.lock.json
-docs/
 .github/workflows/playwright.yml
+docs/
 playwright.config.ts
 ```
 
-Tests own setup, assertions and expected values. Page Objects expose concrete locators and actions. `scripts/` owns controlled lifecycle and evidence handling; `environment/` pins the SUT. `docs/` holds requirements, mappings, decisions and release evidence. The workflow orchestrates CI using the same controlled runner.
+Tests own business setup, assertions, readable seeded expectations and scenario-specific network evidence. Five concrete Page Objects own UI locators/actions. The lifecycle script owns the controlled environment; the evidence module owns private result capture and sanitized publication. No base-page framework, generic API client or fixture hierarchy is needed at this scale.
 
-## Test Organization
+## Run the project
 
-Folders separate execution layers and functional domains. Each test has native Playwright tags:
-
-| Category | Convention |
-| --- | --- |
-| Layer | Exactly one of `@ui`, `@api` |
-| Primary domain | Exactly one of `@auth`, `@catalog`, `@cart`, `@checkout` |
-| Regression | All 26 scenarios have `@regression` |
-| Smoke | Five critical paths also have `@smoke`: UI login, matching search, anonymous add-to-cart, COD purchase and API authorization |
-
-Purchase belongs to checkout; API authorization belongs to authentication. Tags describe execution selection and do not confer requirement approval or priority. Full regression is authoritative.
-
-## Controlled Test Environment
-
-The [SUT lock](environment/toolshop.lock.json) fixes Toolshop 2.5 source and Docker image digests. The helper checks bounded readiness, resets/seeds before every test invocation and injects separate positive, negative and locking customer credentials from ignored environment configuration.
-
-Local endpoints are UI `http://localhost:4200` and API `http://localhost:8091`. State is disposable: reset restores seed data, counters, queues and stock; teardown removes controlled containers, networks and volumes. Purchase jobs remain queued; tests start no queue workers or scheduler. Do not overlap controlled runs, manual sessions or resets.
-
-Prerequisites: Node.js 22, npm, Git, Docker Engine using Linux containers and Compose v2. Ports 4200/8091 must be available. The pinned ARM64 gateway needs ARM64 emulation on AMD64 hosts. See [environment architecture](docs/adr-002-controlled-toolshop.md) for details.
-
-## Running the Project
-
-From the repository root:
+Prerequisites: **Node.js 22**, npm, Git, Docker Engine using Linux containers and Compose v2. Local ports **4200/8091** must be available. The pinned ARM64 gateway requires ARM64 emulation on AMD64 hosts; CI installs QEMU support.
 
 ```sh
 npm ci
 npx playwright install chromium
 npm run sut:provision
 npm run sut:up
+npm run typecheck
 npm run test:controlled
 npm run sut:down
 ```
 
-Start the environment once, run the required subsets, then tear it down:
+Toolshop 2.5 source and images are fixed by the [environment lock](environment/toolshop.lock.json). Startup checks readiness; every controlled invocation resets/seeds and injects credentials from ignored configuration. UI: `http://localhost:4200`; API: `http://localhost:8091`. Teardown removes controlled containers, network and volumes. Queued inventory/email jobs are deliberately not processed. Do not overlap manual sessions, test runs or resets.
 
-| Command | Selection |
-| --- | --- |
-| `npm run test:controlled` | All 26 scenarios |
-| `npm run test:ui` | 23 UI scenarios |
-| `npm run test:api` | 3 API scenarios |
-| `npm run test:smoke` | 5 critical paths |
-| `npm run test:auth` | 4 UI + 3 API authentication scenarios |
-| `npm run test:catalog` | 8 catalog scenarios |
-| `npm run test:cart` | 6 cart scenarios |
-| `npm run test:checkout` | 5 checkout/purchase scenarios |
+Provisioning creates ignored `.env.controlled`; external credentials take precedence. [.env.example](.env.example) documents optional direct-run inputs. Direct Playwright execution bypasses reset/seed and is outside the validated controlled contract. On Windows, use `npm.cmd`/`npx.cmd` if PowerShell blocks the `.ps1` launchers.
 
-Every subset delegates to `test:controlled` using Playwright `--grep`. Startup is explicit (`sut:up`); every invocation checks readiness and resets/seeds. The helper enforces Chromium, one worker, zero retries and forbid-only. Those command-line settings override the general defaults in `playwright.config.ts`, including direct-CI retries. CI uses this same helper through the evidence wrapper.
+## Select tests
 
-Additional commands:
+Start the environment, select a subset, then tear it down. Every alias reuses the same controlled runner and reset/seed.
 
-```sh
-npm run typecheck
-npx playwright test --list --project=chromium
-npm run test:controlled -- tests/ui/checkout/purchase.spec.ts
-npx tsx --test scripts/ci-evidence.test.ts
-npx playwright show-report
-```
+| Command | Scenarios |
+| --- | ---: |
+| `npm run test:controlled` | 26 |
+| `npm run test:ui` | 23 |
+| `npm run test:api` | 3 |
+| `npm run test:smoke` | 5 |
+| `npm run test:auth` | 7 |
+| `npm run test:catalog` | 8 |
+| `npm run test:cart` | 6 |
+| `npm run test:checkout` | 5 |
 
-On Windows, use `npm.cmd` / `npx.cmd` if PowerShell blocks the `.ps1` launchers. Provisioning generates ignored `.env.controlled`; externally injected credentials take precedence. Optional direct Playwright execution uses `.env` (see [.env.example](.env.example)) and bypasses the controlled reset/seed contract. Direct API runs require `API_BASE_URL`; locking additionally requires its dedicated customer variables from the template.
+Native tags assign one layer (`@ui`/`@api`), one primary domain (`@auth`, `@catalog`, `@cart`, `@checkout`) and `@regression` to every case. Only five selected critical paths also have `@smoke`. Full regression is authoritative.
 
-## CI/CD
+List tests with `npx playwright test --list --project=chromium`. Run one controlled spec with `npm run test:controlled -- tests/ui/checkout/guest-purchase.spec.ts`.
 
-[GitHub Actions](.github/workflows/playwright.yml) runs on PRs targeting `main`, pushes to `main`, and manual dispatch. It installs locked dependencies, runs strict typecheck and three evidence security checks, starts the pinned environment and executes all 26 scenarios. Teardown runs even after test failure and verifies resource removal.
+## CI and evidence
 
-The evidence wrapper preserves test failures while keeping raw output private. The scanner stages and re-scans approved bytes before publishing `controlled-results` (14-day retention). HTML and failure diagnostics are published only when inspectable and clean; opaque or sensitive content is withheld. Local reports/traces can contain credentials or session data and require review before sharing. API tracing is disabled in both request-only authentication specs.
+[GitHub Actions](.github/workflows/playwright.yml) validates PRs targeting `main`, pushes to `main`, and manual dispatches. It installs locked dependencies, runs strict types and three evidence security checks, starts pinned Toolshop and executes the full suite. The controlled CLI fixes **Chromium, one worker, zero retries and forbid-only**, overriding general Playwright configuration defaults.
 
-## Engineering Principles
+Teardown runs even after failures and verifies resource absence. The scanner allowlists compact outcomes, stages and re-scans approved bytes, and publishes `controlled-results` for 14 days. Sensitive or opaque HTML/traces/screenshots are withheld; failures remain failures. Full local diagnostics can contain session data and require review before sharing. Open local reports with `npx playwright show-report`.
 
-- Strict TypeScript throughout tests, Page Objects and lifecycle scripts.
-- Assertions and readable deterministic test oracles stay in tests.
-- Independent sessions and test-owned resources; reset/teardown owns disposable state.
-- Concrete Page Objects composed with Playwright `Page` and `Locator`.
-- Abstractions added only for demonstrated needs.
-- Credentials and generated identities stay outside committed source and public evidence.
+## Documentation
 
-## Project Evolution
+- [Solution architecture and defense](docs/solution-architecture-and-defense.md): primary technical deep dive, decisions, Docker/CI, debugging and limitations.
+- [Requirements](docs/requirements.md) and [test catalogue](docs/test-catalogue.md): current approval states, exact mappings and coverage boundaries.
+- [R16 stabilization evidence](docs/release-16-summary.md): reliability investigation, controlled failure exercises, repeatability and v1.0 review gate.
 
-| Phase | Focus | Status |
+## Portfolio Evolution
+
+| Release / Sprint | Branch | Incremental value |
 | --- | --- | --- |
-| Phase 1 | Foundation, controlled execution, secure CI and functional purchase flow (R1–R11) | Complete |
-| Phase 2 | Portfolio architecture and selected UI/API coverage (R12–R15) | In progress |
-| Phase 3 | Reliability, debugging and engineering ownership | Planned |
+| R1 — Traceable baseline | `release/01-traceable-baseline` | Established requirements, test mappings and baseline evidence. |
+| R2 — Controlled environment | `release/02-controlled-toolshop-environment` | Replaced shared-state dependence with pinned Docker execution. |
+| R3 — GitHub Actions | `release/03-github-actions-baseline` | Added hosted controlled regression and verified teardown. |
+| TypeScript migration | `ts-migration-hotfix` | Brought lifecycle scripts under strict TypeScript validation. |
+| R4 — Failure diagnostics | `release/04-failure-diagnostics` | Exercised failure evidence and diagnostic capture. |
+| R5 — Add to cart | `release/05-add-to-cart` | Covered the product-selection-to-cart path. |
+| R5 — Authenticated follow-up | `hotfix/release-05-authenticated-cart` | Added signed-in cart entry after human review. |
+| R6 — Cart maintenance | `release/06-cart-maintenance` | Verified saved quantities, selected removal and totals. |
+| R7 — Category filtering | `release/07-category-filtering` | Added category clearing and search-reset behavior. |
+| R8 — API authorization | `release/08-api-authorization` | Added a focused backend identity boundary and secure evidence. |
+| R9 — Resource ownership | `release/09-resource-lifecycle-fixture` | Validated reset/teardown ownership without premature fixtures. |
+| R10 — Billing progression | `release/10-billing-validation` | Distinguished anonymous and authenticated checkout identity steps. |
+| R11 — Purchase completion | `release/11-purchase-completion` | Completed COD purchase with independent invoice readback. |
+| R12 — Portfolio architecture | `release/12-portfolio-architecture` | Organized domains/layers and introduced native subset selection. |
+| R13 — Authentication security | `release/13-authentication-security` | Added locking, explicit token invalidation and post-logout protection. |
+| R14 — Catalog expansion | `release/14-catalog-expansion` | Strengthened product details, brand/intersection filters and browsing. |
+| R15 — Cart/checkout edges | `release/15-cart-checkout-edge-coverage` | Added selected cart lifecycle, guest-order and billing-validation risks. |
+| R16 — Stabilization | `release/16-portfolio-stabilization` | Investigated reliability, practiced debugging and consolidated v1.0 defense. |
 
-| Release | Branch | Incremental value |
-| --- | --- | --- |
-| R15 — Cart & Checkout Edge Coverage | `release/15-cart-checkout-edge-coverage` | Selected cart lifecycle and alternate checkout risks before portfolio stabilization. |
-
-[Release 12 architecture package](docs/release-12-summary.md) documents organization, preserved behavior and validation. [Release 11](docs/release-11-summary.md#16-post-merge-human-closure) records human-approved purchase closure. Historical investigations and release evidence remain under `docs/`.
+Portfolio v1.0 freeze remains subject to final human review and merge.

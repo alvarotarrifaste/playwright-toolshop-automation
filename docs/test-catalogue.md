@@ -1,139 +1,85 @@
-# Existing automation and traceability
+# Test Catalogue
 
-Twenty-six scenarios are implemented: twenty-three UI and three API. Release 15 adds repeated-add merging, last-item empty lifecycle, guest COD order creation and one billing-city validation case. Release 14 strengthens product detail and adds brand selection/clearing, pagination and category/brand intersection. Release 13 adds account locking and explicit API logout invalidation, and strengthens the existing UI logout case without duplicating it. Release 11 adds one authenticated cash-on-delivery purchase under Approved REQ-PURCHASE-001 (L11 human review). Release 10 adds two checkout identity/billing-progression UI cases under Approved REQ-CHECKOUT-001 (L10 human review), explicitly preserving the guest alternative. Release 7 adds category selection/clearing and search resetting category state; REQ-CATALOG-005 is Approved by explicit human leadership decision during Release 12 (L12-CATALOG), while existing REQ-CATALOG-002 remains Requires confirmation. Release 6 adds two independent anonymous cart-maintenance scenarios; their requirements are approved by the post-merge human leadership decision (L6). The original seven names/assertions and T-CART-001 anonymous implementation are preserved. Release 5 PR #8 introduced T-CART-001; its human-approved post-merge change request adds T-CART-002 authenticated coverage. IDs are documentation identifiers. Release 2 supplies a controlled target, reset before execution and separate authentication customers. Requirement status comes from [the requirements catalogue](requirements.md), independently of the original and follow-up [Release 5 execution evidence](release-05-summary.md).
+Current baseline: **26 scenarios = 23 UI + 3 API**, all discovered through the controlled Chromium project. No functional scenario is added or materially changed in R16. [Requirements](requirements.md) are the authority for current scope/status; historical proposal and release evidence remains in packages, not duplicated here. [Architecture and defense](solution-architecture-and-defense.md) explains selection and oracle decisions.
 
-Phase 1 priority proposals do not establish approved priority labels. Native R12 layer/domain/regression tags and five selected smoke cases remain the operational convention. Full controlled execution discovers all 26 scenarios (23 UI + 3 API); optional subsets use the same runner.
+Every test has one native layer, one primary domain and @regression. Exactly five also have @smoke. IDs below are traceability identifiers; titles remain unchanged. Test-owned context/cart/token setup is independent of another test. Reset/seed owns persistent state before each controlled invocation.
 
-## Authentication
+## UI authentication — 4
 
-Source for all four: [tests/ui/authentication/authentication.spec.ts](../tests/ui/authentication/authentication.spec.ts). Functional area: Authentication / account access. Layer: UI. Current status: **Implemented, preserved**. Evidence: existing automation behavior and repository evidence; D5 where specified below; current application observation only as supported by the validation record.
+Source: [authentication.spec.ts](../tests/ui/authentication/authentication.spec.ts). Tags @ui/@auth/@regression. Positive and single-invalid-login customers are separate; no shared storage-state login.
 
-| Test ID | Requirement and status | Exact existing scenario | Current assertions | Known gap / data prerequisite |
-| --- | --- | --- | --- | --- |
-| T-AUTH-001 | REQ-AUTH-001: Approved | `registered user can login successfully` | `/account` URL and visible `My account` heading | Enabled customer; `TEST_USER_EMAIL` and `TEST_USER_PASSWORD`. D5 User Login AC2. Does not cover admin, disabled accounts or TOTP. |
-| T-AUTH-002 | REQ-AUTH-002: Approved; minor documentation condition | `customer cannot sign in with an incorrect password` | Visible error with exact `Invalid email or password` text | Release 2 uses `TEST_NEGATIVE_USER_EMAIL`, a different seeded customer from positive login/logout; controlled-suite execution resets/seeds first. D5 User Login AC3. Does not assert absence of session. Browser isolation alone does not reset failure counters; direct repeated execution can still lock the negative customer. |
-| T-AUTH-003 | REQ-AUTH-003: Requires confirmation | `signed-in customer logs out` | Successful account redirect, visible `Sign in` link after logout, then direct /account navigation redirects to /auth/login with visible Login button | Valid credentials; own UI login. R13 adds route assertions to the same scenario. Requirement remains Requires confirmation; no backend token-revocation claim. |
-| T-AUTH-004 | REQ-AUTH-004: Requires confirmation | `unauthenticated visitor cannot access /account` | `/auth/login` URL and visible login button | Fresh unauthenticated context; no credentials needed. Official intent pending; no backend authorization proof. |
-
-## Product Discovery
-
-Source for all three: [tests/ui/catalog/search.spec.ts](../tests/ui/catalog/search.spec.ts). Functional area: Product Discovery. Layer: UI. Current status: **Implemented, preserved; requirement review pending**. Evidence: existing automation behavior and repository evidence; D5 where specified; current application observation only as supported by validation.
-
-| Test ID | Requirement and status | Exact existing scenario | Current assertions | Known gap / data prerequisite |
-| --- | --- | --- | --- | --- |
-| T-CATALOG-001 | REQ-CATALOG-002: Requires confirmation | `visitor searches for a product and sees matching results` | Search completion visible, first product name visible, exact `Pliers` match visible | `Pliers` query and expected product must exist. D5 Product Overview AC4. Does not verify every result, filter reset or query boundaries. |
-| T-CATALOG-002 | REQ-CATALOG-003: Requires confirmation | `visitor searches for a product with no matches` | Exact `0 products found for 'xxx'` text; zero product-name elements | `xxx` must remain unmatched. Official wording/empty-state confirmation pending; no search-completion assertion in this test. |
-| T-CATALOG-003 | REQ-CATALOG-004: Requires confirmation | `visitor opens a product from search results and views its details` | Search completion, product URL/name/button plus R14 unit price/category/brand, meaningful description and correct loaded image | Search `Pliers`; pinned Combination Pliers data. P14 Product Detail AC1 with source/runtime corroboration; actual cart addition remains separate. |
-
-## Deferred automation
-
-The original Release 1 locking deferral was resolved in Release 13: approved REQ-AUTH-005 is implemented as T-AUTH-005 with dedicated-account isolation and verified reset recovery. R13 also implements explicit API logout invalidation (now human-approved L13). R14 catalog additions are mapped below. Broader authentication, price/sort/filter-combination and cart variants outside documented coverage remain deferred.
-
-## Add to Cart — Release 5
-
-Source: [tests/ui/cart/add-to-cart.spec.ts](../tests/ui/cart/add-to-cart.spec.ts). Layer: UI; classification: **functional regression — Add to Cart happy path, anonymous/authenticated**. Reuse existing LoginPage, CatalogPage, ProductDetailsPage and CartPage. The follow-up changes no Page Object. All assertions stay in the tests. No fixtures, API login/helpers, storage-state reuse, data framework, shared cart abstraction, generic components or order dependencies.
-
-| Test ID | Requirement/status and evidence | Exact scenario / implementation | Preconditions | Expected result / assertions | Business/risk value and execution |
-| --- | --- | --- | --- | --- | --- |
-| T-CART-001 | REQ-CART-001: Approved under L5 refinement. P5/I5/O5 evidence. Original anonymous test retained unchanged. | `visitor adds a product to cart and sees the selected product and quantity` in tests/ui/cart/add-to-cart.spec.ts | Controlled reset/seed/readiness; fresh anonymous context; search Pliers; seeded in-stock Combination Pliers; default quantity 1. | Search complete; exact detail product/default quantity; Add to Cart; cart link; /checkout; complete product-name collection exactly [Combination Pliers]; quantity=1. | Preserve anonymous purchase-funnel coverage and detect missing/wrong item/quantity or extra lines. Original PR #8 results remain distinct from the follow-up's nine-test results. |
-| T-CART-002 | REQ-CART-001: Approved. L5 explicitly requires authenticated coverage; O5 records post-merge application observation/execution. | `authenticated user adds a product to cart and sees the selected product and quantity` in tests/ui/cart/add-to-cart.spec.ts | Fresh context; enabled seeded positive customer via injected TEST_USER_EMAIL/TEST_USER_PASSWORD; own LoginPage UI login; controlled reset/seed/readiness; search Combination Pliers; default quantity 1. | /account and My account after login; search complete; exact detail product/default quantity; add/open Cart Review; /checkout; exactly [Combination Pliers]; quantity=1; authenticated user menu still visible. | Complete the supported-session dimension without accepting a silent anonymous fallback. Same primary product/quantity oracle; independent of T-CART-001 and all authentication tests. Follow-up validation in release-05-summary.md. |
-
-Playwright's per-test context isolates cart identity and browser authentication; no scenario provides state to another. Credentials are validated only inside T-CART-002, so T-CART-001 gains no login prerequisite. Cart-link auto-wait synchronizes successful add; assertions inspect cart contents rather than transient confirmation. Existing seven tests and the T-CART-001 body remain unchanged. No coverage is claimed for checkout progression, payment, pricing/discounts, removal, quantity updates, empty-cart wording, cart merging on login, ownership or cross-session persistence.
-
-## Cart Maintenance — Release 6
-
-Source: [tests/ui/cart/cart-maintenance.spec.ts](../tests/ui/cart/cart-maintenance.spec.ts). Layer: **UI**. Classification: **functional regression — cart maintenance**, no priority/smoke tag inferred. Current requirement status is **Approved** by explicit post-merge human leadership review (L6), separate from implementation and execution status. The original pre-merge Proposed history is preserved in the Release 6 package. Evidence P6/I6/O6 is defined in the [requirements catalogue](requirements.md); actual execution results are in the [Release 6 package](release-06-summary.md).
-
-| Test ID | Requirement/status | Exact scenario | Preconditions | Expected result / oracle | Business/risk value |
-| --- | --- | --- | --- | --- | --- |
-| T-CART-003 | REQ-CART-002 — Approved (L6 human review) | `visitor updates a cart quantity and sees the saved quantity and recalculated totals` | Own fresh anonymous context; controlled readiness/reset/seed; independently search/add Combination Pliers at default 1; unit $14.15; in stock, regular product. | /checkout; initially exactly the expected product, quantity 1, line/cart $14.15. Change to 2; exact Product quantity updated. confirmation; exactly same product, quantity 2, line/cart $28.30; reload confirms identity, quantity, unit price and totals. | Protect saved edits and correct recalculation; confirmation synchronizes mutation, persisted contents/totals are primary. |
-| T-CART-004 | REQ-CART-003 — Approved (L6 human review) | `visitor removes a cart product and sees the remaining product and recalculated total` | Own fresh anonymous context; controlled readiness/reset/seed; independently discover/add Combination Pliers and Pliers quantity 1 each, no discounts. | /checkout; exact two product names and both quantities 1, lines $14.15/$12.01, total $26.16. Remove Combination Pliers by its row; exactly Pliers quantity 1 remains, line/cart $12.01; reload confirms state. | Protect row-specific deletion and preservation of unrelated selections; detect extra/missing rows and stale totals. |
-
-Both scenarios use existing CatalogPage/ProductDetailsPage and concrete CartPage additions. Assertions remain at test level; no API login/utilities, fixtures, shared cart setup, storage-state reuse or order dependencies. Each test establishes and asserts its own preconditions. Original nine test bodies/assertions remain unchanged. New coverage does not assert empty messaging, repeated adds, quantity limits/invalid values, discounts/rentals, authenticated maintenance, ownership or checkout/payment. The Release 5 gap statement above describes its historical two-case coverage; the additions here cover only the specified quantity/removal paths.
-
-## Category Filtering — Release 7
-
-Source: [tests/ui/catalog/filtering.spec.ts](../tests/ui/catalog/filtering.spec.ts). Layer **UI**; classification **functional regression — category filtering/search interaction**. REQ-CATALOG-005 is Approved by explicit human leadership decision during Release 12 (L12-CATALOG); execution is evidence, not approval. P7/I7/O7 sources and requirement boundaries are in the [requirements catalogue](requirements.md) and [Release 7 package](release-07-summary.md).
-
-| Test ID | Requirement/status | Exact scenario | Preconditions | Expected result / oracle | Business/risk value |
-| --- | --- | --- | --- | --- | --- |
-| T-CATALOG-004 | REQ-CATALOG-005 — Approved (L12-CATALOG human review) | `visitor selects a category and clears it to restore the initial product page` | Own fresh anonymous context; controlled reset/seed/readiness; default price/rental criteria; no search/other filters. Initial nine-card page independently asserted. | Pliers selected/checked and filter completion; exactly five seeded identities including Bolt Cutters, with no extra cards. Uncheck; no selected category; exact original nine-name page restored. Count plus every exact identity, no ordering assertion. | Detect no-op/wrong filters, missing/extra category members and stale constraints after clearing. Only page 1 restoration, not whole-catalogue or hierarchy coverage. |
-| T-CATALOG-005 | REQ-CATALOG-002 — Requires confirmation, existing meaning unchanged | `visitor searches after category filtering and sees matching products with the category cleared` | Own fresh anonymous context; controlled reset/seed/readiness; independently select Pliers and assert its exact five products/checked state. | Search Hammer completes; Pliers unchecked; zero selected category inputs; exact 6 products found for Hammer caption and complete six-name seeded result set. | Detect stale category constraints and inconsistent UI state hiding cross-category results. Partial AC4 coverage: category reset only, not every filter or query boundary/matching algorithm. |
-
-Each test constructs only CatalogPage; category actions/locators live there and all assertions remain in tests. The existing eleven scenarios and their spec files/assertions are unchanged. No fixtures, generic filter framework/components, API helpers, data framework or parameterization infrastructure. Fixed expected identity arrays are local test oracles, not a data framework. Exact cardinality plus each expected card detects incorrect sets without requiring incidental sort order. Full sets and execution results are persisted in release-07-summary.md; no hierarchy, multi-select, brand/price combination, pagination traversal or persistence assertion is claimed.
-
-## API Authorization Pilot — Release 8
-
-Source: [tests/api/authentication/authorization.spec.ts](../tests/api/authentication/authorization.spec.ts). Layer: **API/service**, one independent scenario; no browser fixture or UI login. Release 8 introduced fourteen controlled scenarios: **13 UI + 1 API**; Release 10 brought coverage to **15 UI + 1 API**; Release 11 adds one UI purchase (R11/R12 **16 UI + 1 API**; R13 **16 UI + 3 API**; R14 **19 UI + 3 API**; current R15 **23 UI + 3 API**). The existing Chromium project discovers both; full controlled execution remains unfiltered. Release 12 adds optional native tag subsets without a second pipeline or project. Prior functional scenarios remain unchanged.
-
-| Test ID | Requirement/status | Scenario | Preconditions | Oracle | Risk/boundaries |
-| --- | --- | --- | --- | --- | --- |
-| T-API-AUTH-001 | REQ-API-AUTH-001 — Approved, post-merge human leadership (L8) | `T-API-AUTH-001: current customer resource rejects anonymous access and returns the authenticated customer` | Existing controlled reset/seed; fresh isolated request fixture; injected positive customer email/password; own POST /users/login, no inherited storage or prior test | GET /users/me without credentials: 401 and exact error-only JSON. Login: 200, bearer type, nonempty token. Same GET with bearer token: 200; email matches injected customer, pinned positive first/last name, nonempty generated ID. Sensitive identity/token comparisons assert booleans. | Detect anonymous disclosure/wrong customer resolution. No role/IDOR matrix, invalid-token lifecycle, profile mutation or broad schema contract. |
-
-Pinned documentation/source, controlled observation and actual execution are distinguished in [Release 8](release-08-summary.md). Release 8 disabled tracing for this request-only spec; R13 also disables it for account-security.spec.ts to prevent API credentials/tokens entering trace attachments; request fixture owns disposal, no saved auth state or raw response attachments. All UI diagnostics and controlled lifecycle flags remain unchanged. API security additions from R13 are mapped below; other API variants remain deferred.
-
-Release 8 closure source **L8**: explicit human leadership review supplied for Release 9 Step 0 after merged PR #12 and post-merge run 40375008221. T-API-AUTH-001 now maps to approved REQ-API-AUTH-001 with its scope/assertions unchanged. The original Proposed history remains in the separate [Release 8 pre-merge record and post-merge closure](release-08-summary.md#16-post-merge-human-closure); approval was not inferred from execution.
-
-## Checkout identity / Billing progression — Release 10
-
-Source: [tests/ui/checkout/identity-billing.spec.ts](../tests/ui/checkout/identity-billing.spec.ts). Layer **UI**; two independent normal-path cases. Requirement status is **Approved** by explicit post-merge human leadership decision L10, supplied for Release 11 Step 0; original Proposed history is preserved in the [separate Release 10 closure](release-10-summary.md#16-post-merge-human-closure). P10/I10/O10/R10 evidence and the explicit guest exception are defined in [requirements](requirements.md#checkout-identity-and-billing-progression--release-10-proposal) and the [Release 10 package](release-10-summary.md). Final count chosen after discovery: **16 scenarios, 15 UI + 1 API**. No cart approval/scope changes.
-
-| Test ID | Requirement/status | Exact scenario | Preconditions | Oracle and boundary |
-| --- | --- | --- | --- | --- |
-| T-CHECKOUT-001 | REQ-CHECKOUT-001 — Approved (L10 human review) | `anonymous checkout presents the identity choice before billing` | Own fresh anonymous context; own UI search/select/add of Combination Pliers; exact cart identity and quantity 1 | After cart proceed, /checkout with visible default email/password/submit and guest tab; no signed-in acknowledgement/authenticated continuation; billing heading/street and payment form hidden. Stops before identity submission. |
-| T-CHECKOUT-002 | REQ-CHECKOUT-001 — Approved (L10 human review) | `authenticated checkout continues to billing without another login prompt` | Own LoginPage UI login using injected positive customer; account success; independently created/asserted product/quantity 1 | Exact seeded Jane Doe acknowledgement, no credential form, enabled continuation; then Billing Address heading/street/proceed-3 visible and user menu retained, payment form hidden. Stops before billing/payment submission. |
-
-Assertions and business setup remain visible in tests. Reuse existing LoginPage/CatalogPage/ProductDetailsPage/CartPage; concrete CheckoutPage scopes wizard controls. No auth/resource fixture, shared state or API setup. This is the UI identity-choice boundary **before billing**, not universal mandatory login: guest continuation was confirmed in discovery. No checkout login/guest submission, bypass-security, billing-validation/prefill matrix, payment or purchase lifecycle coverage is claimed. Existing fourteen scenario implementations/assertions and API authorization coverage remain unchanged.
-
-## Purchase Completion — Release 11
-
-Source: [tests/ui/checkout/purchase.spec.ts](../tests/ui/checkout/purchase.spec.ts). Layer **UI with authenticated backend readback**. Evidence P11/I11/O11 and the explicit async/environment cleanup decision are in [requirements](requirements.md#purchase-completion--release-11-proposal) and [Release 11](release-11-summary.md). Release 11 count was **17 scenarios, 16 UI + 1 API**; current R15 total is **26, 23 UI + 3 API**.
-
-| Test ID | Requirement/status | Exact scenario | Preconditions | Oracle / scope |
-| --- | --- | --- | --- | --- |
-| T-PURCHASE-001 | REQ-PURCHASE-001 — Approved (L11 human review) | `authenticated customer completes a cash-on-delivery purchase with a persisted invoice and cleared cart` | Own injected customer UI login/cart; Combination Pliers quantity 1/14.15; synthetic US/00000/1 with local deterministic Faker autofill; COD without payment secrets | Validation 200, then exactly one invoice submission/201; UI confirmation matches its generated reference; owned-cart DELETE 204 and client keys cleared; independent app-authenticated GET 200 returns same ID/reference, exact line/quantity/total, COD payment and AWAITING_FULFILLMENT. |
-
-Assertions/setup remain test-owned. Reuse existing Page Objects with additive concrete CheckoutPage controls only. No token extraction, API client/context, fixture or per-resource cleanup; reset/seed and disposable teardown own invoices/payment/details, queue and stock. Inventory/email are queued, not assumed complete; independent lifecycle evidence verifies resource deltas, inventory-only execution and reset recovery. No guest/other-method duplicate, external settlement/email delivery, PDF/history matrix, shipping/worker-completion or refund claim. Earlier R10 rows describe their original pre-purchase scope; all sixteen baseline bodies/assertions remain unchanged.
-
-## Release 12 organization and selection
-
-Current paths above follow UI/API layer and primary functional domain. All 17 baseline titles and documentation IDs remain unchanged; R13 adds two API cases below. Every test has one native layer tag (@ui or @api), one primary domain (@auth, @catalog, @cart or @checkout), and @regression. Five critical paths also have @smoke: UI login, matching search, anonymous add-to-cart, authenticated COD purchase and the API authorization boundary. Smoke is an engineering execution subset, not a requirement approval or priority label. Full regression remains authoritative. Historical Release Packages retain original paths and classifications. See [Release 12](release-12-summary.md) for the move map and equivalence evidence.
-
-## Authentication & Account Security — Release 13
-
-Source: [account-security.spec.ts](../tests/api/authentication/account-security.spec.ts). Both cases are API, native @api/@auth/@regression, with request tracing off and no smoke tag. Source/observation/lifecycle evidence is recorded separately in [Release 13](release-13-summary.md).
-
-| Test ID | Requirement/status | Exact scenario | Preconditions | Oracle / risk / limitations |
-| --- | --- | --- | --- | --- |
-| T-AUTH-005 | REQ-AUTH-005 — Approved, implementation deferral lifted | `T-AUTH-005: three invalid passwords lock only the dedicated customer on subsequent login` | Controlled reset/seed; third seeded enabled customer via TEST_LOCK_USER_EMAIL/PASSWORD; distinct from injected positive and existing negative customer | Initial valid login 200; exactly three invalid POST /users/login responses 401/error Unauthorized; subsequent wrong/correct credentials 423/documented lock error; positive login still 200. Detect threshold/bypass/isolation errors. No admin/disabled/unknown-customer or timed-unlock matrix. Lock persists until reset/down. |
-| T-API-AUTH-002 | REQ-API-AUTH-002 — Approved (L13 human review) | `T-API-AUTH-002: explicit API logout invalidates the same token for protected customer access` | Own fresh request fixture and positive customer login, nonempty runtime JWT | Same-token /users/me 200 → authenticated GET /users/logout 200/exact confirmation → /users/me 401/error-only Unauthorized. Detect false-success revocation leaving a token usable. Not a UI logout requirement, expiry/refresh/cross-token/distributed-cache matrix. |
-
-T-AUTH-003 is strengthened in place as shown above, retaining its original assertions and Requires confirmation status. No baseline case is removed, renamed or duplicated. All 26 tests are regression; smoke stays five. The controlled helper supplies API_BASE_URL; direct runs must configure it. Existing authorization.spec.ts retains its complete original test body/assertions and trace-off policy; only endpoint injection and a missing-configuration guard change.
-
-## Catalog Browsing & Filtering Expansion — Release 14
-
-Current catalog **8 UI scenarios**. Native @ui/@catalog/@regression selects every case through the unchanged npm test:catalog command; smoke remains five across the repository. All nineteen R13 titles and original assertions are preserved; only T-CATALOG-003 gains additive product-information assertions. Source-derived datasets, runtime comparisons and boundaries are in [Release 14](release-14-summary.md).
-
-| Test ID | Requirement/status | Exact scenario | Oracle / risk / limits |
+| Test ID | Requirement/status | Exact title | Main oracle |
 | --- | --- | --- | --- |
-| T-CATALOG-003 (strengthened) | REQ-CATALOG-004 — Requires confirmation, unchanged | `visitor opens a product from search results and views its details` | Retain URL/name/button; add 14.15, Pliers, ForgeFlex Tools, meaningful description excerpt and visible correct pliers01.avif image with matching alt and successful load. One regular selected product; no long copy equality, stock/discount/rental/related metadata matrix. |
-| T-CATALOG-006 | REQ-CATALOG-006 — Approved (L14 human review) | `visitor selects a brand and clears it to restore the default product grid` | Initial nine-card grid captured after seeded anchor/count; MightyCraft checked → exact complete nine-product default-range brand set; uncheck → exact initial identities restored. Detect ignored/wrong brand and sticky clearing; one single brand, no multi-brand/search/pagination matrix. Source: filtering.spec.ts. |
-| T-CATALOG-007 | REQ-CATALOG-007 — Approved (L14 human review) | `visitor browses next previous and numbered catalog pages with the expected product sets` | Exact seeded page 1 → Next/page 2 → Previous/page 1 → numbered page 5 → page 1; nine identities per visited page, five page controls. Detect stale/no-op/wrong page slice and return navigation. No universal order/all-pages/filtered reset claim. Source: browsing.spec.ts. |
-| T-CATALOG-008 | REQ-CATALOG-008 — Approved (L14 human review) | `visitor combines category and brand filters and sees only their product intersection` | Pliers selected with all five source-derived identities → MightyCraft selected while category stays checked → exactly Bolt Cutters, Long Nose Pliers, Slip Joint Pliers. Detect replacement/OR/ignored criteria; one anonymous leaf-category/single-brand intersection. Source: filtering.spec.ts. |
+| T-AUTH-001 | REQ-AUTH-001 — Approved | `registered user can login successfully` | Account URL/heading; @smoke |
+| T-AUTH-002 | REQ-AUTH-002 — Approved | `customer cannot sign in with an incorrect password` | Exact rejection using separate negative customer |
+| T-AUTH-003 | REQ-AUTH-003 — Requires confirmation | `signed-in customer logs out` | Sign in, then direct /account redirects to login/button; no revocation claim |
+| T-AUTH-004 | REQ-AUTH-004 — Requires confirmation | `unauthenticated visitor cannot access /account` | Fresh-context protected-route redirect/button |
 
-New/strengthened cases are anonymous and establish their own browser state. No cart/login/test-order prerequisite or persistent catalog mutation. REQ-CATALOG-002/003/004 retain Requires confirmation and 005 remains Approved; stronger evidence and passing execution do not approve proposed requirements. [Filtering source](../tests/ui/catalog/filtering.spec.ts), [browsing source](../tests/ui/catalog/browsing.spec.ts), [detail source](../tests/ui/catalog/search.spec.ts).
+## API authentication — 3
 
-Release 14 human approval **L14**, supplied for Release 15 Step 0 after merged PR #18 and verified main run 40535132019, approves REQ-CATALOG-006/007/008 and their T-CATALOG-006/007/008 mappings without changing scope/assertions. Original Proposed history remains in the separate Release 14 package; REQ-CATALOG-004 remains Requires confirmation.
+Sources: [authorization.spec.ts](../tests/api/authentication/authorization.spec.ts), [account-security.spec.ts](../tests/api/authentication/account-security.spec.ts). Tags @api/@auth/@regression; trace off. Direct request fixture owns disposal, no raw auth-body attachments or token logging.
 
-## Cart & Checkout Edges — Release 15
-
-Current totals: **26 (23 UI + 3 API)**; cart **6**, checkout **5**, catalog **8**. Four new UI cases use existing @cart/@checkout and @regression tags; smoke remains five. Each owns its anonymous session/cart and uses the existing controlled reset/seed lifecycle. P15/I15/O15, oracle limits, resource effects and validation are in [Release 15](release-15-summary.md).
-
-| Test ID | Requirement/status | Exact scenario | Oracle / risk / boundaries |
+| Test ID | Requirement/status | Exact title | Main oracle |
 | --- | --- | --- | --- |
-| T-CART-005 | REQ-CART-004 — Proposed | `visitor removes the final cart item and sees a persisted empty cart without checkout controls` | One owned line → empty message, zero items/total/proceed/badge, session quantity 0 and retained ID; reload exact-cart GET 200/empty items and empty UI. Story wording differs from observed translation, explicitly pending review. Empty backend cart is retained, not deleted. |
-| T-CART-006 | REQ-CART-005 — Proposed | `visitor adds the same product again and sees one saved cart line with accumulated quantity and totals` | Two default-1 Combination Pliers additions → one quantity-2 line, unit 14.15/line and total 28.30, badge 2; saved after reload. Detect duplicate lines/lost increments, not a quantity/overstock/discount matrix. |
-| T-PURCHASE-002 | REQ-PURCHASE-002 — Proposed | `anonymous guest completes one cash-on-delivery order with matching confirmation and a deleted cart` | Synthetic guest/local billing/COD, no login; validation then one guest creation 201/null user/14.15, matching reference/correct payload, cart DELETE 204 plus independent GET 404/client clear. No anonymous invoice GET exists; independent operational guest persistence audits are release evidence, not shipped line/payment/status readback. |
-| T-CHECKOUT-003 | REQ-CHECKOUT-002 — Proposed | `guest cannot advance with an empty required billing city and can proceed after correcting it` | Valid coherent synthetic address → blank city disables proceed/payment stays hidden/no order → restored city reaches payment/no order. One required-field UI progression boundary, not form/backend security matrix. |
+| T-API-AUTH-001 | REQ-API-AUTH-001 — Approved | `T-API-AUTH-001: current customer resource rejects anonymous access and returns the authenticated customer` | Missing auth 401/error-only; own login/current profile 200/matching identity; @smoke |
+| T-AUTH-005 | REQ-AUTH-005 — Approved | `T-AUTH-005: three invalid passwords lock only the dedicated customer on subsequent login` | Dedicated third customer: initial 200, three 401s, subsequent wrong/correct 423, positive unaffected |
+| T-API-AUTH-002 | REQ-API-AUTH-002 — Approved | `T-API-AUTH-002: explicit API logout invalidates the same token for protected customer access` | Same-token protected access 200 → explicit logout 200 → protected access 401 |
 
-[Repeated-add source](../tests/ui/cart/add-to-cart.spec.ts), [empty-cart source](../tests/ui/cart/cart-maintenance.spec.ts), [guest order source](../tests/ui/checkout/guest-purchase.spec.ts), [billing source](../tests/ui/checkout/identity-billing.spec.ts). All 22 baseline cases/assertions, including authenticated purchase exact-invoice readback, remain unchanged. Proposed additions do not broaden existing approved requirements; human approval is separate.
+## UI catalog — 8
+
+Sources: [search.spec.ts](../tests/ui/catalog/search.spec.ts), [filtering.spec.ts](../tests/ui/catalog/filtering.spec.ts), [browsing.spec.ts](../tests/ui/catalog/browsing.spec.ts). Tags @ui/@catalog/@regression. All anonymous/read-only; source-derived sets and boundary limits are in requirements and [R14](release-14-summary.md).
+
+| Test ID | Requirement/status | Exact title | Main oracle |
+| --- | --- | --- | --- |
+| T-CATALOG-001 | REQ-CATALOG-002 — Requires confirmation | `visitor searches for a product and sees matching results` | Matching Pliers result; @smoke |
+| T-CATALOG-002 | REQ-CATALOG-003 — Requires confirmation | `visitor searches for a product with no matches` | Exact zero caption and no cards |
+| T-CATALOG-003 | REQ-CATALOG-004 — Requires confirmation | `visitor opens a product from search results and views its details` | URL/name/button, seeded price/category/brand, meaningful description, loaded correct image |
+| T-CATALOG-004 | REQ-CATALOG-005 — Approved | `visitor selects a category and clears it to restore the initial product page` | Exact five Pliers → initial nine-card restoration |
+| T-CATALOG-005 | REQ-CATALOG-002 — Requires confirmation | `visitor searches after category filtering and sees matching products with the category cleared` | Category cleared, exact six Hammer search results; partial reset requirement |
+| T-CATALOG-006 | REQ-CATALOG-006 — Approved | `visitor selects a brand and clears it to restore the default product grid` | Exact nine MightyCraft products, checked state, clear/restoration |
+| T-CATALOG-007 | REQ-CATALOG-007 — Approved | `visitor browses next previous and numbered catalog pages with the expected product sets` | Exact controlled page 1/2/5 sets and return paths |
+| T-CATALOG-008 | REQ-CATALOG-008 — Approved | `visitor combines category and brand filters and sees only their product intersection` | Pliers/MightyCraft exact three, both criteria retained |
+
+## UI cart — 6
+
+Sources: [add-to-cart.spec.ts](../tests/ui/cart/add-to-cart.spec.ts), [cart-maintenance.spec.ts](../tests/ui/cart/cart-maintenance.spec.ts). Tags @ui/@cart/@regression. Each creates its own cart through UI; generated identities are runtime-correlated.
+
+| Test ID | Requirement/status | Exact title | Main oracle |
+| --- | --- | --- | --- |
+| T-CART-001 | REQ-CART-001 — Approved | `visitor adds a product to cart and sees the selected product and quantity` | Exact one product/default quantity; @smoke |
+| T-CART-002 | REQ-CART-001 — Approved | `authenticated user adds a product to cart and sees the selected product and quantity` | Own UI login, exact product/quantity, retained user menu |
+| T-CART-003 | REQ-CART-002 — Approved | `visitor updates a cart quantity and sees the saved quantity and recalculated totals` | Quantity 1→2/28.30, confirmation and reload |
+| T-CART-004 | REQ-CART-003 — Approved | `visitor removes a cart product and sees the remaining product and recalculated total` | Row-specific removal, preserved unrelated Pliers/12.01 after reload |
+| T-CART-005 | REQ-CART-004 — Approved | `visitor removes the final cart item and sees a persisted empty cart without checkout controls` | Empty copy, zero items/total/proceed/badge, retained empty exact-cart GET 200 after reload |
+| T-CART-006 | REQ-CART-005 — Approved | `visitor adds the same product again and sees one saved cart line with accumulated quantity and totals` | One quantity-2 line/28.30 after repeated add and reload |
+
+The exact empty-cart runtime copy is intentionally retained as a pinned oracle with its story discrepancy recorded. It is supported by stronger business-state/readback checks; R16 does not mechanically replace it. No invalid/overstock/discount/ownership matrix is implied.
+
+## UI checkout and purchase — 5
+
+Sources: [identity-billing.spec.ts](../tests/ui/checkout/identity-billing.spec.ts), [purchase.spec.ts](../tests/ui/checkout/purchase.spec.ts), [guest-purchase.spec.ts](../tests/ui/checkout/guest-purchase.spec.ts). Tags @ui/@checkout/@regression. Synthetic guest/billing data only; COD; no background workers.
+
+| Test ID | Requirement/status | Exact title | Main oracle |
+| --- | --- | --- | --- |
+| T-CHECKOUT-001 | REQ-CHECKOUT-001 — Approved | `anonymous checkout presents the identity choice before billing` | Login plus guest alternative; billing/payment not active |
+| T-CHECKOUT-002 | REQ-CHECKOUT-001 — Approved | `authenticated checkout continues to billing without another login prompt` | Own UI login, acknowledgement and visible billing without credential prompt |
+| T-CHECKOUT-003 | REQ-CHECKOUT-002 — Approved | `guest cannot advance with an empty required billing city and can proceed after correcting it` | Valid → blank city blocked/no order → corrected/payment accessible/no order |
+| T-PURCHASE-001 | REQ-PURCHASE-001 — Approved | `authenticated customer completes a cash-on-delivery purchase with a persisted invoice and cleared cart` | One order, matching UI reference, cart deletion/client clear, independent authenticated invoice/line/payment/status readback; @smoke |
+| T-PURCHASE-002 | REQ-PURCHASE-002 — Approved | `anonymous guest completes one cash-on-delivery order with matching confirmation and a deleted cart` | One guest creation/server amount/reference/null customer, matching UI, cart DELETE and independent GET 404; no anonymous invoice readback claim |
+
+Guest operational persistence audit is outside the automated assertion path. Authenticated exact-invoice readback remains distinct. Purchases queue inventory/email but do not prove worker execution, delivery, settlement or fulfillment. Reset/down owns invoice/payment/queue/stock state.
+
+## Execution selection
+
+| Command | Expected count |
+| --- | ---: |
+| npm run test:controlled | 26 |
+| npm run test:ui | 23 |
+| npm run test:api | 3 |
+| npm run test:smoke | 5 |
+| npm run test:auth | 7 |
+| npm run test:catalog | 8 |
+| npm run test:cart | 6 |
+| npm run test:checkout | 5 |
+
+All normal aliases reuse ready/reset/seed plus Chromium/one worker/zero retries/forbid-only. No test-order dependency or separate category runner. Five smoke cases are marked above; remaining cases are regression without smoke. [R16 evidence](release-16-summary.md) records discovery/tag audits, actual commands, repeat full outcomes and debugging restoration. Current statuses include L15 human approvals; original Proposed history remains in the separate release packages and closure records linked from requirements.

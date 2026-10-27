@@ -159,3 +159,23 @@ Review the independently verified R14 closure first. Compare P15/I15/O15 and new
 ## 21. Release status
 
 **Release 15 implementation and validation complete; ready for human review through an OPEN PR against main.** Four distinct UI edges/alternate paths, final suite 26 (23 UI + 3 API), all 22 baseline cases unchanged. Isolated scenarios, cart 6/6, checkout 5/5, final local/hosted 26/26, strict types, security 3/3, resource/reset recovery, scanned public evidence, teardown and diff checks PASS. Four requirements remain Proposed with explicit empty-wording/guest-oracle limits. Initial local baseline timeout remains recorded for later reliability investigation without a timeout/retry change. Release 14 is CLOSED. This is the final functional-coverage increment before Portfolio v1.0 stabilization; delivery stops before merge and Release 16 is not started.
+
+## 22. Post-merge human closure
+
+Original sections 1–21, including the initial local failure and Proposed history, remain unchanged. Human leadership supplied this Release 15 closure during Release 16 after [PR #19](https://github.com/alvarotarrifaste/playwright-toolshop-automation/pull/19) merged at **8b9424eb5f7ba9956ce0013d795d373aaa24b8f7**. [Main push run 40553420592](https://github.com/alvarotarrifaste/playwright-toolshop-automation/actions/runs/40553420592), job **122362968527**, independently verified **completed/success** at that SHA.
+
+| Verified post-merge evidence | Result |
+| --- | --- |
+| Controlled suite | **26/26 PASS — 23 UI + 3 API**, all exact titles, one passed result at retry 0 each |
+| Strict TypeScript | **PASS** |
+| CI evidence security checks | **3/3 PASS** |
+| Execution | **One worker, zero retries, forbid-only** |
+| Reset/seed | **PASS** |
+| Teardown | **PASS**, controlled containers/networks/volumes absent in logs |
+| Sanitized artifact | Only **controlled-results**, **12756815168**, 1531 bytes |
+| HTML/diagnostics | HTML **withheld** as sensitive-or-uninspectable; diagnostic metadata clean, failure-only upload skipped on green run |
+| Public logs | **23 files scanned clean** |
+
+ZIP SHA256 **d3495743b8d6b9fd16cafd3c5c565d42de98abcc7364c0c30b672a69a9e5e60c** matches GitHub metadata; results SHA256 **519c3e87a9f8282c02891dab55b336b23979b8c1ce6bb4bae6988420c9920bc6** matches the manifest.
+
+**L15 human approval:** REQ-CART-004, REQ-CART-005, REQ-PURCHASE-002 and REQ-CHECKOUT-002 are Approved with exact existing scoped meanings. Guest acceptance uses one guest creation, server amount/reference, null user, matching UI, purchased-cart deletion and independent cart GET 404; operational audit evidence remains outside the automated assertion path. No anonymous invoice readback is claimed. Authenticated purchase retains its independent persisted invoice readback. **Release 15 CLOSED.**
