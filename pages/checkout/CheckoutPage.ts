@@ -19,6 +19,11 @@ export class CheckoutPage {
   readonly paymentSuccess: Locator;
   readonly confirmButton: Locator;
   readonly orderConfirmation: Locator;
+  readonly guestEmail: Locator;
+  readonly guestFirstName: Locator;
+  readonly guestLastName: Locator;
+  readonly guestSubmit: Locator;
+  readonly guestContinueToBillingButton: Locator;
 
   constructor(page: Page) {
     const checkout = page.locator('app-checkout');
@@ -43,6 +48,11 @@ export class CheckoutPage {
     this.paymentSuccess = checkout.locator('[data-test="payment-success-message"]');
     this.confirmButton = checkout.locator('[data-test="finish"]');
     this.orderConfirmation = checkout.locator('#order-confirmation');
+    this.guestEmail = identity.locator('[data-test="guest-email"]');
+    this.guestFirstName = identity.locator('[data-test="guest-first-name"]');
+    this.guestLastName = identity.locator('[data-test="guest-last-name"]');
+    this.guestSubmit = identity.locator('[data-test="guest-submit"]');
+    this.guestContinueToBillingButton = identity.locator('[data-test="proceed-2-guest"]');
   }
 
   async proceedToBilling(): Promise<void> {
@@ -65,5 +75,17 @@ export class CheckoutPage {
 
   async confirm(): Promise<void> {
     await this.confirmButton.click();
+  }
+
+  async enterGuestIdentity(email: string, firstName: string, lastName: string): Promise<void> {
+    await this.guestOption.click();
+    await this.guestEmail.fill(email);
+    await this.guestFirstName.fill(firstName);
+    await this.guestLastName.fill(lastName);
+    await this.guestSubmit.click();
+  }
+
+  async continueAsGuest(): Promise<void> {
+    await this.guestContinueToBillingButton.click();
   }
 }

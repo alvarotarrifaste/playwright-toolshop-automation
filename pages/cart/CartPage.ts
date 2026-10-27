@@ -10,6 +10,8 @@ export class CartPage {
   readonly total: Locator;
   readonly quantityUpdatedMessage: Locator;
   readonly proceedButton: Locator;
+  readonly emptyCartMessage: Locator;
+  readonly cartQuantityBadge: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -21,6 +23,8 @@ export class CartPage {
     this.total = page.locator('[data-test="cart-total"]');
     this.quantityUpdatedMessage = page.getByText('Product quantity updated.', { exact: true });
     this.proceedButton = page.locator('[data-test="proceed-1"]');
+    this.emptyCartMessage = page.getByText('The cart is empty. Nothing to display.', { exact: true });
+    this.cartQuantityBadge = page.locator('[data-test="cart-quantity"]');
   }
 
   async open(): Promise<void> {

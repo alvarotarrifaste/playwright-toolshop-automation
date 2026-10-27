@@ -37,6 +37,56 @@ test('anonymous checkout presents the identity choice before billing', { tag: ['
   await expect(checkout.paymentMethod).not.toBeVisible();
 });
 
+test('guest cannot advance with an empty required billing city and can proceed after correcting it', { tag: ['@ui', '@checkout', '@regression'] }, async ({ page }) => {
+  const catalog = new CatalogPage(page);
+  const details = new ProductDetailsPage(page);
+  const cart = new CartPage(page);
+  const checkout = new CheckoutPage(page);
+  let invoiceSubmissions = 0;
+  page.on('request', request => {
+    if (request.method() === 'POST' && new URL(request.url()).pathname.startsWith('/invoices')) invoiceSubmissions++;
+  });
+  await catalog.goto();
+  await catalog.search('Combination Pliers');
+  await expect(catalog.searchCompleted).toBeVisible();
+  await catalog.openProduct('Combination Pliers');
+  await details.addToCart();
+  await cart.open();
+  await expect(cart.productNames).toHaveText(['Combination Pliers']);
+  await expect(cart.productQuantities).toHaveValue('1');
+  await cart.proceedToCheckout();
+  await checkout.enterGuestIdentity('billing.check@example.invalid', 'Billing', 'Check');
+  await checkout.continueAsGuest();
+  await expect(checkout.billingHeading).toBeVisible();
+  const lookup = page.waitForResponse(response => {
+    const url = new URL(response.url());
+    return url.pathname === '/postcode-lookup' && url.searchParams.get('country') === 'US'
+      && url.searchParams.get('postcode') === '00000' && url.searchParams.get('house_number') === '1';
+  });
+  await checkout.enterBillingLocation('US', '00000', '1');
+  const response = await lookup;
+  expect(response.status()).toBe(200);
+  const address = await response.json() as { street: string; city: string; state: string };
+  await expect(checkout.billingStreet).toHaveValue(address.street);
+  await expect(checkout.billingCity).toHaveValue(address.city);
+  await expect(checkout.billingState).toHaveValue(address.state);
+  await expect(checkout.billingProceedButton).toBeEnabled();
+
+  await checkout.billingCity.fill('');
+  await checkout.billingCity.press('Tab');
+  await expect(checkout.billingCity).toHaveValue('');
+  await expect(checkout.billingHeading).toBeVisible();
+  await expect(checkout.billingProceedButton).toBeDisabled();
+  await expect(checkout.paymentMethod).not.toBeVisible();
+  expect(invoiceSubmissions, 'Invalid billing has not submitted any order').toBe(0);
+
+  await checkout.billingCity.fill(address.city);
+  await expect(checkout.billingProceedButton).toBeEnabled();
+  await checkout.proceedToPayment();
+  await expect(checkout.paymentMethod).toBeVisible();
+  expect(invoiceSubmissions, 'Correcting billing does not itself place an order').toBe(0);
+});
+
 test('authenticated checkout continues to billing without another login prompt', { tag: ['@ui', '@checkout', '@regression'] }, async ({ page }) => {
   const email = process.env.TEST_USER_EMAIL;
   const password = process.env.TEST_USER_PASSWORD;
